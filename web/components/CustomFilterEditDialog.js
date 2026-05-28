@@ -21,11 +21,6 @@ const FILTER_CODE_TEMPLATE = `def filter_func(item, keywords):
     # 在此编写筛选逻辑
     return True`;
 
-const EXTRACT_CODE_TEMPLATE = `def extract_func(item):
-    """参数: item (dict)  返回: str"""
-    # 在此编写提取逻辑
-    return ""`;
-
 const AI_SYSTEM_PROMPT = `你是一个 ComfyUI 图库筛查项代码生成器。用户会描述筛选需求，你需要生成 Python 代码。
 
 ## 图片数据结构 (item)
@@ -183,22 +178,24 @@ function handleCopyAiPrompt() {
 
 export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
   const [name, setName] = useState('');
+  const [placeholder, setPlaceholder] = useState('');
   const [filterCode, setFilterCode] = useState('');
-  const [extractCode, setExtractCode] = useState('');
   const [testResult, setTestResult] = useState(null);
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const isBuiltin = editItem?.builtin;
 
   useEffect(() => {
     if (isOpen) {
       if (editItem) {
         setName(editItem.name || '');
+        setPlaceholder(editItem.placeholder || '');
         setFilterCode(editItem.filterCode || FILTER_CODE_TEMPLATE);
-        setExtractCode(editItem.extractCode || '');
       } else {
         setName('');
+        setPlaceholder('');
         setFilterCode(FILTER_CODE_TEMPLATE);
-        setExtractCode('');
       }
       setTestResult(null);
     }
@@ -244,8 +241,8 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
     try {
       const payload = {
         name: name.trim(),
+        placeholder: placeholder.trim(),
         filterCode: filterCode.trim(),
-        extractCode: extractCode.trim(),
       };
 
       let url, method;
@@ -276,7 +273,7 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
     } finally {
       setSaving(false);
     }
-  }, [name, filterCode, extractCode, editItem, onSave, onClose]);
+  }, [name, placeholder, filterCode, editItem, onSave, onClose]);
 
   const renderFooter = () => [
     h(DialogButton, { onClick: onClose }, '取消'),
@@ -356,6 +353,18 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
           value: name,
           onInput: (e) => setName(e.target.value),
           placeholder: '例如：分辨率筛选',
+          disabled: isBuiltin,
+        }),
+      ]),
+
+      // 输入提示
+      h(DialogFormItem, { label: '输入框提示（placeholder）' }, [
+        h('input', {
+          class: 'gallery-form-input',
+          type: 'text',
+          value: placeholder,
+          onInput: (e) => setPlaceholder(e.target.value),
+          placeholder: '例如：输入关键词，用 & 分隔表示"且"，| 表示"或"',
         }),
       ]),
 
@@ -367,18 +376,6 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
           onInput: (e) => setFilterCode(e.target.value),
           rows: 10,
           style: { fontFamily: 'monospace', fontSize: '12px', resize: 'vertical' },
-        }),
-      ]),
-
-      // 提取函数
-      h(DialogFormItem, { label: '提取选项值函数（可选，定义 extract_func(item) -> str）' }, [
-        h('textarea', {
-          class: 'gallery-form-textarea code',
-          value: extractCode,
-          onInput: (e) => setExtractCode(e.target.value),
-          rows: 6,
-          style: { fontFamily: 'monospace', fontSize: '12px', resize: 'vertical' },
-          placeholder: EXTRACT_CODE_TEMPLATE,
         }),
       ]),
 

@@ -85,6 +85,9 @@ export function PromptDetailView() {
       cardSize: ctx.cardSize,
       cardLayoutMode: ctx.cardLayoutMode,
       openLightbox: ctx.openLightbox,
+      imageFields: ctx.imageFields,
+      groupByField: ctx.groupByField,
+      onGroupByChange: ctx.setGroupByField,
     }),
   ]);
 }

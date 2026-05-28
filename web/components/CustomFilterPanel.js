@@ -124,6 +124,8 @@ function FilterItemRow({ filter, value, onChange, onEdit, onDelete, onExtract, o
     !inputValue || opt.toLowerCase().includes(inputValue.toLowerCase())
   );
 
+  const isBuiltin = filter.builtin;
+
   return h('div', { class: 'custom-filter-row' }, [
     h('div', { class: 'custom-filter-row-label' }, [
       h('span', { class: 'custom-filter-row-name' }, filter.name),
@@ -138,7 +140,7 @@ function FilterItemRow({ filter, value, onChange, onEdit, onDelete, onExtract, o
         onFocus: handleFocus,
         onBlur: handleBlur,
         onKeyDown: handleKeyDown,
-        placeholder: '输入筛选值...',
+        placeholder: filter.placeholder || '输入筛选值...',
       }),
       showDropdown && filteredOptions.length > 0 &&
         h('div', { class: 'custom-filter-dropdown' },
@@ -155,7 +157,7 @@ function FilterItemRow({ filter, value, onChange, onEdit, onDelete, onExtract, o
     ]),
 
     h('div', { class: 'custom-filter-row-actions' }, [
-      h('button', {
+      !isBuiltin && h('button', {
         class: 'custom-filter-action-btn',
         onClick: onExtract,
         title: '重新提取选项',
@@ -163,9 +165,9 @@ function FilterItemRow({ filter, value, onChange, onEdit, onDelete, onExtract, o
       h('button', {
         class: 'custom-filter-action-btn',
         onClick: onEdit,
-        title: '编辑',
+        title: isBuiltin ? '编辑执行函数' : '编辑',
       }, h(Icon, { name: 'edit', size: 12 })),
-      h('button', {
+      !isBuiltin && h('button', {
         class: 'custom-filter-action-btn danger',
         onClick: onDelete,
         title: '删除',

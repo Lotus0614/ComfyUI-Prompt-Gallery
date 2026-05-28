@@ -1,9 +1,9 @@
 /**
- * ImageGroupView - 按日期分组的图片展示组件
+ * ImageGroupView - 按分组展示图片的组件
  * 共享组件，供 PromptDetailView / HistoryView / CombinationDetailView 使用
  *
  * 搜索栏在 GalleryFilterBar 中，搜索关键词通过 searchQuery prop 传入
- * 组件内部管理：日期侧边栏、分组图片内容、滚动边缘加载
+ * 组件内部管理：分组侧边栏（可选字段分组 + 搜索筛选）、分组图片内容、滚动边缘加载
  */
 import { h } from '../lib/preact.mjs';
 import { useState, useEffect, useMemo, useRef, useCallback } from '../lib/hooks.mjs';
@@ -38,26 +38,66 @@ function AdaptiveImageItem({ img, className, onClick, onContextMenu }) {
   );
 }
 
-// ============ DateSidebar ============
+// ============ GroupSidebar ============
 
-function DateSidebar({ dateList, dateCountMap, currentDateIndex, onJumpToDate }) {
-  if (!dateList || dateList.length === 0) return null;
+function GroupSidebar({ groupList, groupCountMap, currentGroupIndex, onJumpToGroup, imageFields, groupByField, onGroupByChange }) {
+  const [searchTerm, setSearchTerm] = useState('');
 
-  return h('div', { class: 'date-sidebar' },
-    h('div', { class: 'date-sidebar-list' },
-      dateList.map((date, index) => {
-        const isCurrent = currentDateIndex === index;
-        const count = dateCountMap[date] || 0;
+  // 过滤可分组字段
+  const groupableFields = useMemo(() => {
+    return (imageFields || []).filter(f => f.groupable);
+  }, [imageFields]);
+
+  // 按搜索词过滤分组列表
+  const filteredList = useMemo(() => {
+    if (!searchTerm.trim()) return groupList;
+    const term = searchTerm.toLowerCase();
+    return groupList.filter(g => g.toLowerCase().includes(term));
+  }, [groupList, searchTerm]);
+
+  if (!groupList || groupList.length === 0) return null;
+
+  return h('div', { class: 'group-sidebar' },
+    // 字段选择器
+    groupableFields.length > 1 && h('div', { class: 'group-sidebar-selector' },
+      h('select', {
+        class: 'group-sidebar-select',
+        value: groupByField || 'builtin_date',
+        onChange: (e) => onGroupByChange(e.target.value),
+      },
+        groupableFields.map(f =>
+          h('option', { key: f.id, value: f.id }, f.name)
+        )
+      ),
+    ),
+
+    // 搜索框
+    h('div', { class: 'group-sidebar-search' },
+      h('input', {
+        class: 'group-sidebar-search-input',
+        type: 'text',
+        placeholder: '搜索分组...',
+        value: searchTerm,
+        onInput: (e) => setSearchTerm(e.target.value),
+      }),
+    ),
+
+    // 分组列表
+    h('div', { class: 'group-sidebar-list' },
+      filteredList.map((groupKey) => {
+        const originalIndex = groupList.indexOf(groupKey);
+        const isCurrent = currentGroupIndex === originalIndex;
+        const count = groupCountMap[groupKey] || 0;
         return h(
           'button',
           {
-            key: date,
-            class: `date-sidebar-item ${isCurrent ? 'active' : ''}`,
-            onClick: () => onJumpToDate(index),
+            key: groupKey,
+            class: `group-sidebar-item ${isCurrent ? 'active' : ''}`,
+            onClick: () => onJumpToGroup(originalIndex),
           },
           [
-            h('span', { class: 'date-sidebar-date' }, date),
-            h('span', { class: 'date-sidebar-count' }, count),
+            h('span', { class: 'group-sidebar-label' }, groupKey),
+            h('span', { class: 'group-sidebar-count' }, count),
           ],
         );
       }),
@@ -83,6 +123,9 @@ function DateSidebar({ dateList, dateCountMap, currentDateIndex, onJumpToDate })
  * @param {number} props.cardSize
  * @param {boolean} [props.includeComfyOutput] - 是否包含 comfy_output 导入的图片
  * @param {Function} props.openLightbox
+ * @param {Object[]} [props.imageFields] - 图片字段列表
+ * @param {string} [props.groupByField] - 当前分组字段 ID
+ * @param {Function} [props.onGroupByChange] - 分组字段变更回调
  */
 export function ImageGroupView({
   promptFilter,
@@ -101,16 +144,52 @@ export function ImageGroupView({
   cardSize,
   cardLayoutMode = 'fixed',
   openLightbox,
+  imageFields = [],
+  groupByField = 'builtin_date',
+  onGroupByChange,
 }) {
   const [groupData, setGroupData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
-  const [currentDateIndex, setCurrentDateIndex] = useState(0);
+  const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [loadingMore, setLoadingMore] = useState(null); // 'up' | 'down' | null
 
   const scrollContainerRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const prevScrollHeightRef = useRef(0);
+
+  // 侧边栏宽度（可拖拽调整）
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    try { return parseInt(localStorage.getItem('pg_sidebar_width')) || 160; } catch { return 160; }
+  });
+  const dragStateRef = useRef(null);
+
+  const handleResizeStart = useCallback((e) => {
+    e.preventDefault();
+    dragStateRef.current = { startX: e.clientX, startWidth: sidebarWidth };
+    const onMove = (ev) => {
+      if (!dragStateRef.current) return;
+      const delta = ev.clientX - dragStateRef.current.startX;
+      const newWidth = Math.max(100, Math.min(400, dragStateRef.current.startWidth + delta));
+      setSidebarWidth(newWidth);
+    };
+    const onUp = () => {
+      dragStateRef.current = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, [sidebarWidth]);
+
+  // 持久化宽度
+  useEffect(() => {
+    try { localStorage.setItem('pg_sidebar_width', String(sidebarWidth)); } catch {}
+  }, [sidebarWidth]);
 
   const gridStyle = useMemo(() => computeSizeVars(cardSize), [cardSize]);
 
@@ -125,11 +204,12 @@ export function ImageGroupView({
           search: search || undefined,
           filters: customFilters || undefined,
           includeComfyOutput: includeComfyOutput || undefined,
+          groupBy: groupByField || undefined,
         });
         if (result.success) {
           setGroupData(result);
           setVisibleRange({ start: 0, end: 0 });
-          setCurrentDateIndex(0);
+          setCurrentGroupIndex(0);
           if (onDataLoaded) onDataLoaded(result.totalImages);
         }
       } catch (err) {
@@ -138,7 +218,7 @@ export function ImageGroupView({
         setLoading(false);
       }
     },
-    [promptFilter, promptFilters, customFilters, includeComfyOutput, onDataLoaded],
+    [promptFilter, promptFilters, customFilters, includeComfyOutput, groupByField, onDataLoaded],
   );
 
   // 首次挂载、filter 变化或 searchQuery 变化时加载（search 增加 300ms debounce）
@@ -161,14 +241,14 @@ export function ImageGroupView({
 
   // ============ 可见分组 ============
   const groups = groupData?.groups || [];
-  const dateList = groupData?.dateList || [];
+  const groupList = groupData?.dateList || [];
 
   const visibleGroups = useMemo(() => {
     const { start, end } = visibleRange;
     return groups.slice(start, end + 1);
   }, [groups, visibleRange]);
 
-  const dateCountMap = useMemo(() => {
+  const groupCountMap = useMemo(() => {
     const map = {};
     for (const g of groups) map[g.date] = g.count;
     return map;
@@ -229,9 +309,9 @@ export function ImageGroupView({
     return () => { if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current); };
   }, []);
 
-  const handleJumpToDate = useCallback((dateIndex) => {
-    setCurrentDateIndex(dateIndex);
-    setVisibleRange({ start: dateIndex, end: dateIndex });
+  const handleJumpToGroup = useCallback((groupIndex) => {
+    setCurrentGroupIndex(groupIndex);
+    setVisibleRange({ start: groupIndex, end: groupIndex });
     requestAnimationFrame(() => {
       if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
     });
@@ -312,11 +392,21 @@ export function ImageGroupView({
   // ============ 渲染 ============
   return h('div', { class: 'image-group-view' }, [
     h('div', { class: 'image-group-body' }, [
-      h(DateSidebar, {
-        dateList,
-        dateCountMap,
-        currentDateIndex,
-        onJumpToDate: handleJumpToDate,
+      h('div', { class: 'group-sidebar-wrapper', style: { width: sidebarWidth + 'px', flexShrink: 0 } }, [
+        h(GroupSidebar, {
+          groupList,
+          groupCountMap,
+          currentGroupIndex,
+          onJumpToGroup: handleJumpToGroup,
+          imageFields,
+          groupByField,
+          onGroupByChange,
+        }),
+      ]),
+
+      h('div', {
+        class: 'group-sidebar-resize-handle',
+        onMouseDown: handleResizeStart,
       }),
 
       h(

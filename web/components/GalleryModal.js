@@ -167,6 +167,7 @@ function DialogLayer() {
       imageIndex: ctx.lightbox.imageIndex,
       onClose: ctx.closeLightbox,
       onNavigate: ctx.handleLightboxNavigate,
+      imageFields: ctx.imageFields,
     }),
 
     h(AddPromptDialog, {

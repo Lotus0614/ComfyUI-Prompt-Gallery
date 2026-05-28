@@ -8,10 +8,12 @@ from .image_mapping import ImageMappingStorage
 from .category import CategoryStorage
 from .combination import CombinationStorage
 from .custom_filter import CustomFilterStorage
+from .image_field import ImageFieldStorage
 from .migration import migrate_prompt_data, migrate_to_prompt_schema, migrate_image_schema
 
 _storage_instances = None
 _custom_filter_instance = None
+_image_field_instance = None
 _storage_init_lock = threading.Lock()
 
 
@@ -135,6 +137,20 @@ def get_custom_filter_storage() -> CustomFilterStorage:
         storage_dir = _resolve_storage_dir()
         _custom_filter_instance = CustomFilterStorage(storage_dir)
         return _custom_filter_instance
+
+
+def get_image_field_storage() -> ImageFieldStorage:
+    """获取图片自定义字段存储实例（懒加载单例）"""
+    global _image_field_instance
+    if _image_field_instance is not None:
+        return _image_field_instance
+
+    with _storage_init_lock:
+        if _image_field_instance is not None:
+            return _image_field_instance
+        storage_dir = _resolve_storage_dir()
+        _image_field_instance = ImageFieldStorage(storage_dir)
+        return _image_field_instance
 
 
 def clear_all_caches():

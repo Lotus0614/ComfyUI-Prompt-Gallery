@@ -427,13 +427,14 @@ export async function fetchCombinationImages(id) {
 
 // ============ Grouped Images ============
 
-export async function fetchGroupedImages({ prompt, prompts, search, filters, includeComfyOutput } = {}) {
+export async function fetchGroupedImages({ prompt, prompts, search, filters, includeComfyOutput, groupBy } = {}) {
   const params = new URLSearchParams();
   if (prompt) params.set('prompt', prompt);
   if (prompts && prompts.length > 0) params.set('prompts', prompts.join(','));
   if (search) params.set('search', search);
   if (filters && filters.length > 0) params.set('filters', JSON.stringify(filters));
   if (includeComfyOutput) params.set('include_comfy_output', '1');
+  if (groupBy) params.set('group_by', groupBy);
   const qs = params.toString();
   const url = `/prompt_gallery/images_grouped${qs ? '?' + qs : ''}`;
   const response = await fetch(url);

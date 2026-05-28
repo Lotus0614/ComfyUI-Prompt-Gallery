@@ -113,6 +113,195 @@
   opacity: 0.8;
 }
 
+/* ============ 分组侧边栏（字段选择 + 搜索 + 分组列表） ============ */
+.group-sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 100px;
+  max-width: 400px;
+}
+
+.group-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px;
+  gap: 6px;
+}
+
+.group-sidebar-resize-handle {
+  width: 12px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: #fff5f8;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  border-left: 1px solid #ffe0eb;
+  border-right: 1px solid #ffe0eb;
+}
+
+/* 三竖点纹理 — 默认可见 */
+.group-sidebar-resize-handle::before {
+  content: '';
+  width: 2px;
+  height: 20px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ffb6c1 0px,
+    #ffb6c1 2px,
+    transparent 2px,
+    transparent 5px
+  );
+  transition: all 0.15s;
+}
+
+.group-sidebar-resize-handle:hover {
+  background: #ffeff3;
+}
+
+.group-sidebar-resize-handle:hover::before {
+  height: 28px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ff6b9d 0px,
+    #ff6b9d 3px,
+    transparent 3px,
+    transparent 6px
+  );
+}
+
+.group-sidebar-selector {
+  flex-shrink: 0;
+}
+
+.group-sidebar-select {
+  width: 100%;
+  height: 30px;
+  border: 1px solid #ffe0eb;
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.group-sidebar-select:focus {
+  border-color: #ff6b9d;
+}
+
+.group-sidebar-search {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.group-sidebar-search-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ccc;
+  pointer-events: none;
+}
+
+.group-sidebar-search-input {
+  width: 100%;
+  height: 30px;
+  border: 1px solid #ffe0eb;
+  border-radius: 8px;
+  padding: 0 8px 0 26px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.group-sidebar-search-input::placeholder {
+  color: #ccc;
+}
+
+.group-sidebar-search-input:focus {
+  border-color: #ff6b9d;
+}
+
+.group-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.group-sidebar-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ffe0eb;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #666;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  line-height: 1;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(255, 107, 157, 0.08);
+}
+
+.group-sidebar-item:hover {
+  border-color: #ffb6c1;
+  background: #fff5f8;
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.15);
+  transform: translateY(-1px);
+}
+
+.group-sidebar-item.active {
+  border-color: #ff6b9d;
+  background: #ff6b9d;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
+  transform: translateY(-2px);
+}
+
+.group-sidebar-label {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.group-sidebar-count {
+  font-size: 11px;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.group-sidebar-item.active .group-sidebar-count {
+  opacity: 0.8;
+}
+
 /* ============ 分组内容区域 ============ */
 .image-group-content {
   flex: 1;
@@ -219,6 +408,15 @@
     padding: 4px;
   }
   .date-sidebar-item {
+    padding: 8px;
+  }
+  .group-sidebar-wrapper {
+    min-width: 80px;
+  }
+  .group-sidebar {
+    padding: 4px;
+  }
+  .group-sidebar-item {
     padding: 8px;
   }
   .history-floating-btn {

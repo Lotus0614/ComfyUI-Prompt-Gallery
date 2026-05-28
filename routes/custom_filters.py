@@ -46,6 +46,7 @@ async def create_custom_filter(request):
         name = data.get("name", "").strip()
         filter_code = data.get("filterCode", "").strip()
         extract_code = data.get("extractCode", "").strip()
+        placeholder = data.get("placeholder", "").strip()
 
         if not name:
             return web.json_response({"error": "名称不能为空"}, status=400)
@@ -65,7 +66,7 @@ async def create_custom_filter(request):
                 return web.json_response({"error": f"提取函数语法错误: {e}"}, status=400)
 
         storage = get_custom_filter_storage()
-        item = storage.create(name, filter_code, extract_code)
+        item = storage.create(name, filter_code, extract_code, placeholder)
         return web.json_response({"success": True, "filter": item})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
@@ -80,6 +81,8 @@ async def update_custom_filter(request):
         kwargs = {}
         if "name" in data:
             kwargs["name"] = data["name"].strip()
+        if "placeholder" in data:
+            kwargs["placeholder"] = data["placeholder"].strip()
         if "filterCode" in data:
             code = data["filterCode"].strip()
             try:
@@ -112,9 +115,14 @@ async def delete_custom_filter(request):
     try:
         filter_id = request.match_info["id"]
         storage = get_custom_filter_storage()
+        existing = storage.get_by_id(filter_id)
+        if not existing:
+            return web.json_response({"error": "筛查项不存在"}, status=404)
+        if existing.get("builtin", False):
+            return web.json_response({"error": "内置筛选项不可删除"}, status=403)
         if storage.delete(filter_id):
             return web.json_response({"success": True})
-        return web.json_response({"error": "筛查项不存在"}, status=404)
+        return web.json_response({"error": "删除失败"}, status=500)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -141,13 +149,13 @@ async def test_custom_filter(request):
         matched = 0
         total = len(items)
         errors = []
-        for item in items[:2000]:  # 限制测试数量
+        for item in items:
             try:
                 if filter_fn(item, keywords):
                     matched += 1
             except Exception as e:
                 errors.append(str(e))
-                if len(errors) >= 5:
+                if len(errors) >= 10:
                     break
 
         return web.json_response({

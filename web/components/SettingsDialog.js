@@ -5,9 +5,11 @@ import { Icon } from '../lib/icons.mjs';
 import { showToast } from './Toast.js';
 import { useGallery } from './GalleryContext.js';
 import { Storage } from '../utils.js';
+import { ImageFieldPanel } from './ImageFieldPanel.js';
 
 const MENU_ITEMS = [
   { key: 'gallery', label: '图库设置', icon: 'image' },
+  { key: 'imageFields', label: '图片字段', icon: 'image' },
   { key: 'storage', label: '存储管理', icon: 'folder' },
   { key: 'faq', label: '常见问题', icon: 'info-circle' },
 ];
@@ -312,6 +314,7 @@ function FAQ() {
 
 const PANELS = {
   gallery: GallerySettings,
+  imageFields: ImageFieldPanel,
   storage: StorageSettings,
   faq: FAQ,
 };

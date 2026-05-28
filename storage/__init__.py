@@ -6,8 +6,9 @@ from .image_mapping import ImageMappingStorage
 from .category import CategoryStorage
 from .combination import CombinationStorage
 from .custom_filter import CustomFilterStorage
+from .image_field import ImageFieldStorage
 from .migration import migrate_prompt_data, migrate_to_composite_key, validate_migration, migrate_to_prompt_schema, migrate_image_schema
-from ._resolve import _resolve_storage_dir, get_storage, get_custom_filter_storage
+from ._resolve import _resolve_storage_dir, get_storage, get_custom_filter_storage, get_image_field_storage
 
 __all__ = [
     'PromptStorage',
@@ -15,8 +16,10 @@ __all__ = [
     'CategoryStorage',
     'CombinationStorage',
     'CustomFilterStorage',
+    'ImageFieldStorage',
     'get_storage',
     'get_custom_filter_storage',
+    'get_image_field_storage',
     '_resolve_storage_dir',
     'migrate_prompt_data',
     'migrate_to_composite_key',

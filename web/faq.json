@@ -21,6 +21,6 @@
   },
   {
     "question": "保存图片时卡顿怎么办？",
-    "answer": "当 Prompt 数据量较大时，SaveToGallery 节点的 prompt_string 自动匹配可能会变慢。两种优化方式：\n\n1. **使用 metadata_json 精准匹配**：将 PromptSelector 节点的 metadata_json 输出连接到 SaveToGallery 的 metadata_json 输入。这样直接读取精确的 Prompt 选择信息，跳过字符串匹配，速度最快。\n\n2. **禁止大分类保存到画廊**：在画廊中右键点击数据量大的分类 → 选择「编辑分类」→ 勾选「禁止保存到画廊」。该分类下的 Prompt 将不会参与 prompt_string 自动匹配，减少匹配开销。"
+    "answer": "当 Prompt 数据量较大时，【保存到画廊】 节点的 prompt_string 自动匹配可能会变慢。两种优化方式：\n1. 使用 metadata_json 精准匹配：将 【Prompt选择】 节点的 metadata_json 输出连接到 【保存到画廊】 的 metadata_json 输入，取消 prompt_string 的连接。这样直接读取精确的 Prompt 选择信息，跳过字符串匹配，速度最快。\n2.禁止大分类保存到画廊**：在画廊中右键点击数据量大的分类 → 选择「编辑分类」→ 勾选「禁止保存到画廊」。该分类下的 Prompt 将不会参与 prompt_string 自动匹配，减少匹配开销。"
   }
 ]

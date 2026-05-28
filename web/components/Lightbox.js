@@ -41,29 +41,9 @@ function InfoBlock({ title, icon, children, copyText, copyLabel }) {
 function parseImageInfo(info, imagePath) {
   if (!info) return null;
 
-  const mapping = info.mapping;
   const pnginfo = info.pnginfo || {};
-  const fileInfo = info.fileInfo || {};
 
-  let galleryData = {};
-  try {
-    if (pnginfo.prompt_gallery) galleryData = JSON.parse(pnginfo.prompt_gallery);
-  } catch {}
-
-  let promptText = '';
-  try {
-    if (pnginfo.prompt) {
-      const parsed = JSON.parse(pnginfo.prompt);
-      promptText = typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2);
-    }
-  } catch {
-    promptText = pnginfo.prompt || '';
-  }
-
-  const metaPromptString = mapping?.promptString || galleryData.prompt_string || '';
-  const metaPrompt = mapping?.generatePrompt || '';
-  const displayPrompt = promptText || metaPrompt;
-
+  // 提取工作流 JSON（用于复制）
   let workflowText = '';
   try {
     if (pnginfo.workflow) {
@@ -74,21 +54,10 @@ function parseImageInfo(info, imagePath) {
     workflowText = pnginfo.workflow || '';
   }
 
-  const promptNames = mapping?.prompts || galleryData.prompt_names || [];
-  const promptJson = promptNames.length > 0 ? JSON.stringify(promptNames, null, 2) : '';
-
-  return {
-    fileInfo,
-    promptNames,
-    promptJson,
-    metaPromptString,
-    displayPrompt,
-    workflowText,
-    imagePath,
-  };
+  return { workflowText, imagePath };
 }
 
-function InfoPanel({ info, loading, imagePath }) {
+function InfoPanel({ info, loading, imagePath, customFieldValues, imageFields }) {
   if (loading) {
     return h('div', { class: 'lightbox-info-loading' }, h(Icon, { name: 'loader', size: 20, class: 'spin' }));
   }
@@ -97,84 +66,38 @@ function InfoPanel({ info, loading, imagePath }) {
     return h('div', { class: 'lightbox-info-empty' }, '暂无信息');
   }
 
-  const { fileInfo, promptJson, promptNames, metaPromptString, displayPrompt, workflowText, imagePath: path } = info;
+  const { imagePath: path } = info; // workflowText 已移至操作栏
+
+  // 按字段定义顺序展示所有有值的字段（含内置 + 自定义，通过 evaluate API）
+  const fieldEntries = (customFieldValues && imageFields)
+    ? imageFields
+        .filter(f => {
+          const v = customFieldValues[f.id];
+          return v !== undefined && v !== null && v !== '';
+        })
+        .map(f => ({ id: f.id, name: f.name, value: customFieldValues[f.id] }))
+    : [];
+
+  // 判断值是否适合单行显示
+  const isShortValue = (v) => typeof v === 'string' && v.length <= 80 && !v.includes('\n');
 
   return h('div', { class: 'lightbox-info-content' }, [
-    h(InfoBlock, { title: '文件信息', icon: 'image' }, [
-      h('div', { class: 'lightbox-info-grid' }, [
-        h('div', { class: 'lightbox-info-row' }, [
-          h('span', { class: 'lightbox-info-label' }, '尺寸'),
-          h(
-            'span',
-            { class: 'lightbox-info-value' },
-            fileInfo.width && fileInfo.height ? `${fileInfo.width} x ${fileInfo.height}` : '-',
-          ),
-        ]),
-        h('div', { class: 'lightbox-info-row' }, [
-          h('span', { class: 'lightbox-info-label' }, '大小'),
-          h('span', { class: 'lightbox-info-value' }, fileInfo.sizeFormatted || '-'),
-        ]),
-        h('div', { class: 'lightbox-info-row' }, [
-          h('span', { class: 'lightbox-info-label' }, '路径'),
-          h('span', { class: 'lightbox-info-value lightbox-info-path' }, path || '-'),
-        ]),
-      ]),
-    ]),
-
+    // 路径快捷复制
     path && h('div', { class: 'lightbox-info-copy-row' }, [h(CopyButton, { text: path, label: '路径' })]),
 
-    promptJson &&
+    // 每个字段单独一个 InfoBlock
+    ...fieldEntries.map(entry =>
       h(
         InfoBlock,
-        {
-          title: `Prompt (${promptNames.length})`,
-          icon: 'star',
-          copyText: promptJson,
-          copyLabel: 'Prompt列表',
-        },
-        [h('pre', { class: 'lightbox-info-pre' }, promptJson)],
+        { title: entry.name, icon: 'info-circle', copyText: entry.value, copyLabel: entry.name },
+        [isShortValue(entry.value)
+          ? h('span', { class: 'lightbox-info-inline-value' }, entry.value)
+          : h('pre', { class: 'lightbox-info-pre' }, entry.value)
+        ],
       ),
+    ),
 
-    metaPromptString &&
-      h(
-        InfoBlock,
-        {
-          title: 'Prompt String',
-          icon: 'edit',
-          copyText: metaPromptString,
-          copyLabel: 'Prompt String',
-        },
-        [h('pre', { class: 'lightbox-info-pre' }, metaPromptString)],
-      ),
-
-    displayPrompt &&
-      h(
-        InfoBlock,
-        {
-          title: 'Prompt',
-          icon: 'edit',
-          copyText: displayPrompt,
-          copyLabel: 'Prompt',
-        },
-        [h('pre', { class: 'lightbox-info-pre' }, displayPrompt)],
-      ),
-
-    workflowText &&
-      h(
-        InfoBlock,
-        {
-          title: '工作流',
-          icon: 'package',
-          copyText: workflowText,
-          copyLabel: '工作流',
-        },
-        [h('pre', { class: 'lightbox-info-pre lightbox-info-workflow' }, workflowText)],
-      ),
-
-    !promptNames?.length &&
-      !displayPrompt &&
-      !metaPromptString &&
-      !workflowText &&
+    fieldEntries.length === 0 &&
       h('div', { class: 'lightbox-info-empty' }, '暂无额外信息'),
   ]);
 }
@@ -231,10 +154,11 @@ function BrushPanel({ brushColor, brushSize, onColorChange, onSizeChange }) {
   ]);
 }
 
-export function Lightbox({ isOpen, prompt, imageIndex, onClose, onNavigate }) {
+export function Lightbox({ isOpen, prompt, imageIndex, onClose, onNavigate, imageFields = [] }) {
   const [showInfo, setShowInfo] = useState(true);
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [customFieldValues, setCustomFieldValues] = useState({});
   const editor = useLightboxEditor();
 
   const img = prompt ? prompt.images[imageIndex] : null;
@@ -244,6 +168,7 @@ export function Lightbox({ isOpen, prompt, imageIndex, onClose, onNavigate }) {
     if (isOpen && imagePath) {
       setLoading(true);
       setInfo(null);
+      setCustomFieldValues({});
       fetch(`/prompt_gallery/image/info?path=${encodeURIComponent(imagePath)}`)
         .then((res) => res.json())
         .then((data) => {
@@ -255,8 +180,23 @@ export function Lightbox({ isOpen, prompt, imageIndex, onClose, onNavigate }) {
         })
         .catch((err) => showToast('请求失败: ' + err.message, 'error'))
         .finally(() => setLoading(false));
+
+      // 获取自定义字段值
+      if (imageFields.length > 0) {
+        const fieldIds = imageFields.map(f => f.id);
+        fetch('/prompt_gallery/image_fields/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fieldIds, imagePath }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) setCustomFieldValues(data.values || {});
+          })
+          .catch(() => {});
+      }
     }
-  }, [isOpen, imagePath]);
+  }, [isOpen, imagePath, imageFields]);
 
   useEffect(() => {
     if (editor.editMode) {
@@ -350,19 +290,38 @@ export function Lightbox({ isOpen, prompt, imageIndex, onClose, onNavigate }) {
           ),
 
         !editor.editMode &&
-          h(
-            'button',
-            {
-              class: 'gallery-lightbox-edit-btn',
-              onClick: (e) => {
-                e.stopPropagation();
-                editor.enterEditMode(img.path, img.type);
+          h('div', { class: 'gallery-lightbox-action-bar' }, [
+            h(
+              'button',
+              {
+                class: 'gallery-lightbox-action-btn',
+                onClick: (e) => {
+                  e.stopPropagation();
+                  editor.enterEditMode(img.path, img.type);
+                },
+                title: '编辑图片',
               },
-              title: '编辑图片',
-            },
-            h(Icon, { name: 'edit', size: 18 }),
-            h('span', {}, '编辑'),
-          ),
+              h(Icon, { name: 'edit', size: 16 }),
+              h('span', {}, '编辑'),
+            ),
+            info?.workflowText &&
+              h(
+                'button',
+                {
+                  class: 'gallery-lightbox-action-btn',
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(info.workflowText).then(
+                      () => showToast('工作流已复制', 'success'),
+                      () => showToast('复制失败', 'error'),
+                    );
+                  },
+                  title: '复制工作流',
+                },
+                h(Icon, { name: 'package', size: 16 }),
+                h('span', {}, '复制工作流'),
+              ),
+          ]),
 
         editor.editMode &&
           h(EditToolbar, { editor }),
@@ -395,7 +354,7 @@ export function Lightbox({ isOpen, prompt, imageIndex, onClose, onNavigate }) {
             h(Icon, { name: 'info-circle', size: 16 }),
             h('span', {}, '图片信息'),
           ]),
-          h(InfoPanel, { info, loading, imagePath: img?.path }),
+          h(InfoPanel, { info, loading, imagePath: img?.path, customFieldValues, imageFields }),
         ]),
     ],
   );

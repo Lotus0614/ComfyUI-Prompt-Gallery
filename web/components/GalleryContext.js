@@ -78,6 +78,19 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation }
   const [showCustomFilterEditDialog, setShowCustomFilterEditDialog] = useState(false);
   const [editingCustomFilter, setEditingCustomFilter] = useState(null);
 
+  // ============ 图片字段状态 ============
+  const [imageFields, setImageFields] = useState([]);
+  const [groupByField, setGroupByFieldState] = useState(() => {
+    try { return localStorage.getItem('prompt-gallery-group-by') || 'builtin_date'; }
+    catch { return 'builtin_date'; }
+  });
+  const setGroupByField = useCallback((val) => {
+    const v = typeof val === 'function' ? val(groupByField) : val;
+    setGroupByFieldState(v);
+    try { localStorage.setItem('prompt-gallery-group-by', v); }
+    catch {}
+  }, [groupByField]);
+
   // ============ 组合相关状态 ============
   const [showCombinationDialog, setShowCombinationDialog] = useState(false);
   const [combinationDialogMode, setCombinationDialogMode] = useState('add');
@@ -480,6 +493,24 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation }
     }
   }, [viewMode]);
 
+  // 加载图片字段
+  const loadImageFields = useCallback(async () => {
+    try {
+      const res = await fetch('/prompt_gallery/image_fields');
+      const result = await res.json();
+      if (result.success) setImageFields(result.fields);
+    } catch (e) {
+      console.error('Failed to load image fields:', e);
+    }
+  }, []);
+
+  // 首次打开历史视图或 prompt 视图时加载图片字段
+  useEffect(() => {
+    if ((viewMode === 'history' || viewMode === 'prompt') && imageFields.length === 0) {
+      loadImageFields();
+    }
+  }, [viewMode]);
+
   // 筛选值变化（仅更新输入框，不触发查询）
   const handleCustomFilterChange = useCallback((filterId, value) => {
     setCustomFilterValues(prev => ({ ...prev, [filterId]: value }));
@@ -848,6 +879,12 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation }
       handleCustomFilterSaved,
       loadCustomFilters,
 
+      // Image fields
+      imageFields,
+      groupByField,
+      setGroupByField,
+      loadImageFields,
+
       // Item operations
       showMoveDialog: itemOps.showMoveDialog,
       moveItem: itemOps.moveItem,
@@ -980,6 +1017,8 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation }
       showCustomFilterEditDialog,
       editingCustomFilter,
       activeCustomFilters,
+      imageFields,
+      groupByField,
       showExportDialog,
       exportPayload,
       showCombinationDialog,

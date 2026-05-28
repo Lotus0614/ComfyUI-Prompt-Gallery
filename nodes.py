@@ -125,30 +125,17 @@ class PromptSelector:
 
         return self._process_v1_metadata(metadata_dict, metadata)
 
-    def _resolve_category_to_prompts(self, category_id, all_prompts, all_categories, visited=None):
-        """递归解析分类，收集所有画师名"""
-        if visited is None:
-            visited = set()
-        if category_id in visited:
-            return []
-        visited.add(category_id)
-
+    def _resolve_category_to_prompts(self, category_id, all_prompts, category_storage):
+        """解析分类及其所有子分类，收集所有画师名"""
+        # 先获取所有后代分类ID（含自身），O(C)
+        descendant_ids = set(category_storage.get_descendant_ids(category_id))
+        # 再从 prompts 中过滤，O(P)
         names = []
-
-        # 递归获取子分类
-        for cat in all_categories:
-            if cat.get('parentId') == category_id:
-                names.extend(self._resolve_category_to_prompts(
-                    cat['id'], all_prompts, all_categories, visited
-                ))
-
-        # 获取当前分类下的画师
         for prompt in all_prompts:
-            if prompt.get('categoryId') == category_id:
+            if prompt.get('categoryId') in descendant_ids:
                 name = prompt.get('value', '').strip()
                 if name:
                     names.append(name)
-
         return names
 
     def _process_v1_metadata(self, metadata_dict, raw_metadata):
@@ -157,7 +144,6 @@ class PromptSelector:
         try:
             prompt_storage, _, category_storage, combination_storage = get_storage()
             all_prompts = prompt_storage.get_all_prompts()
-            all_categories = category_storage.get_all_categories()
         except Exception as e:
             print(f"[PromptSelector] Failed to load storage: {e}")
             return ("", "{}")
@@ -216,7 +202,7 @@ class PromptSelector:
                         if name:
                             prompt_entries.append((cat_id, name))
                     elif item_type == 'category':
-                        resolved = self._resolve_category_to_prompts(key, all_prompts, all_categories)
+                        resolved = self._resolve_category_to_prompts(key, all_prompts, category_storage)
                         for n in resolved:
                             prompt_entries.append((key, n))
                     elif item_type == 'combination' and key.startswith('combination:'):
@@ -240,7 +226,7 @@ class PromptSelector:
                         prompt_entries.append((cat_id, name))
 
                 for cat_id in partition.get('categoryIds', []):
-                    resolved = self._resolve_category_to_prompts(cat_id, all_prompts, all_categories)
+                    resolved = self._resolve_category_to_prompts(cat_id, all_prompts, category_storage)
                     for n in resolved:
                         prompt_entries.append((cat_id, n))
 

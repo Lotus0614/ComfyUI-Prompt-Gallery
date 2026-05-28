@@ -15,4 +15,5 @@ from . import history
 from . import init
 from . import import_output
 from . import custom_filters
+from . import image_fields
 from . import settings
