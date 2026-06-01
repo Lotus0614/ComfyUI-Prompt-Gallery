@@ -10,14 +10,14 @@
   position: relative;
 }
 
-/* 选中状态：粉色内发光覆盖层 */
+/* 选中状态：强调色内发光覆盖层 */
 .selection-mode.selected::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 3px solid #ff6b9d;
-  box-shadow: inset 0 0 20px rgba(255, 107, 157, 0.6), inset 0 0 50px rgba(255, 107, 157, 0.25);
+  border: 3px solid var(--g-accent);
+  box-shadow: inset 0 0 20px var(--g-accent-light), inset 0 0 50px var(--g-accent-bg);
   pointer-events: none;
   z-index: 20;
 }
@@ -28,7 +28,7 @@
   align-items: center;
   gap: 15px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #ff6b9d 0%, #ffb6c1 100%);
+  background: var(--g-batch-gradient);
   border-radius: 12px;
   margin: 0 0 8px 0;
   flex-wrap: wrap;
@@ -88,7 +88,7 @@
   border: 2px solid white;
   border-radius: 8px;
   background: white;
-  color: #ff6b9d;
+  color: var(--g-accent);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -99,14 +99,14 @@
 }
 
 .batch-op-btn:hover {
-  background: #fff5f8;
+  background: var(--g-hover-bg);
   transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--g-shadow-light);
 }
 
 .batch-op-btn.delete-btn:hover {
-  background: #ffe5e8;
-  color: #dc3545;
+  background: rgba(244, 67, 54, 0.15);
+  color: var(--g-error);
 }
 
 .batch-op-btn.exit-btn {
@@ -126,7 +126,7 @@
 }
 
 .batch-confirm-summary {
-  background: #f8f9fa;
+  background: var(--g-bg-hover);
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 15px;
@@ -135,7 +135,7 @@
 .batch-confirm-summary p {
   margin: 5px 0;
   font-weight: 600;
-  color: #333;
+  color: var(--g-text);
 }
 
 .batch-confirm-summary ul {
@@ -145,7 +145,7 @@
 
 .batch-confirm-summary li {
   margin: 5px 0;
-  color: #555;
+  color: var(--g-text-secondary);
 }
 
 /* 批量确认警告 */
@@ -155,18 +155,18 @@
   gap: 10px;
   padding: 12px;
   background: rgba(255, 193, 7, 0.1);
-  border: 2px solid #ffc107;
+  border: 2px solid var(--g-warning);
   border-radius: 12px;
-  color: #856404;
+  color: var(--g-warning);
   font-weight: 600;
 }
 
 .batch-confirm-warning-high {
   padding: 15px;
-  background: rgba(220, 53, 69, 0.1);
-  border: 2px solid #dc3545;
+  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid var(--g-error);
   border-radius: 12px;
-  color: #721c24;
+  color: var(--g-error);
 }
 
 .batch-confirm-warning-high .warning-icon {
@@ -181,7 +181,7 @@
 }
 
 .batch-confirm-warning-high .critical-warning {
-  color: #dc3545;
+  color: var(--g-error);
   font-size: 16px;
   font-weight: 700;
   margin-top: 10px;

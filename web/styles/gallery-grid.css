@@ -11,10 +11,10 @@
     flex-wrap: wrap;
     align-items: center;
     padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--g-header-bg);
     border-radius: 16px;
     margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(255, 182, 159, 0.2);
+    box-shadow: 0 2px 8px var(--g-shadow-light);
 }
 
 .gallery-search {
@@ -26,26 +26,26 @@
 .gallery-search input {
     width: 100%;
     padding: 8px 14px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-input-border);
     border-radius: 16px;
-    background: #fff5f8;
-    color: #4a4a4a;
+    background: var(--g-input-bg);
+    color: var(--g-text);
     font-size: 13px;
     transition: all 0.2s;
 }
 
 .gallery-search input:focus {
     outline: none;
-    border-color: #ff6b9d;
-    background: #fff;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .gallery-btn {
     padding: 6px 12px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-border);
     border-radius: 12px;
-    background: #fff5f8;
-    color: #ff6b9d;
+    background: var(--g-bg-input);
+    color: var(--g-accent);
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
@@ -53,29 +53,29 @@
 }
 
 .gallery-btn:hover {
-    background: #ffeef2;
+    background: var(--g-hover-bg);
     transform: translateY(-1px);
 }
 
 .gallery-btn.active {
-    background: #ff6b9d;
-    border-color: #ff6b9d;
-    color: #fff;
+    background: var(--g-accent);
+    border-color: var(--g-accent);
+    color: var(--g-active-text);
 }
 
 .gallery-select {
     padding: 6px 12px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-border);
     border-radius: 12px;
-    background: #fff5f8;
-    color: #ff6b9d;
+    background: var(--g-bg-input);
+    color: var(--g-accent);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .gallery-stats {
-    color: #ff9cbd;
+    color: var(--g-text-muted);
     font-size: 12px;
     font-weight: 600;
 }
@@ -128,7 +128,7 @@
     text-align: center;
     padding: 12px 10px;
     font-size: 13px;
-    color: #b0b0b0;
+    color: var(--g-text-hint);
 }
 
 /* ============ 合并的头部样式（面包屑 + 筛选） ============ */
@@ -138,11 +138,11 @@
     justify-content: space-between;
     gap: 16px;
     padding: 12px 20px;
-    background: rgba(255, 255, 255, 0.95);
-    border-bottom: 2px solid #ffb6c1;
+    background: var(--g-header-bg);
+    border-bottom: 2px solid var(--g-header-border);
     border-radius: 16px;
     margin-bottom: 8px;
-    box-shadow: 0 2px 8px rgba(255, 182, 159, 0.2);
+    box-shadow: 0 2px 8px var(--g-shadow-light);
     flex-wrap: wrap;
 }
 
@@ -165,26 +165,26 @@
     min-width: 200px;
     max-width: 300px;
     padding: 8px 14px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-input-border);
     border-radius: 16px;
-    background: #fff5f8;
-    color: #4a4a4a;
+    background: var(--g-input-bg);
+    color: var(--g-text);
     font-size: 13px;
     transition: all 0.2s;
 }
 
 .gallery-search-input:focus {
     outline: none;
-    border-color: #ff6b9d;
-    background: #fff;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .gallery-filter-btn {
     padding: 8px 14px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-border);
     border-radius: 12px;
-    background: #fff5f8;
-    color: #ff6b9d;
+    background: var(--g-bg-input);
+    color: var(--g-accent);
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
@@ -196,22 +196,22 @@
 }
 
 .gallery-filter-btn:hover {
-    background: #ffeef2;
+    background: var(--g-hover-bg);
     transform: translateY(-1px);
 }
 
 .gallery-filter-btn.active {
-    background: #ff6b9d;
-    border-color: #ff6b9d;
-    color: white;
+    background: var(--g-accent);
+    border-color: var(--g-accent);
+    color: var(--g-active-text);
 }
 
 .gallery-filter-select {
     padding: 8px 12px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-border);
     border-radius: 12px;
-    background: #fff5f8;
-    color: #ff6b9d;
+    background: var(--g-bg-input);
+    color: var(--g-accent);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -220,14 +220,14 @@
 
 .gallery-filter-select:focus {
     outline: none;
-    border-color: #ff6b9d;
-    background: #fff;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .gallery-count-badge {
     padding: 6px 12px;
-    background: #ff6b9d;
-    color: white;
+    background: var(--g-accent);
+    color: var(--g-active-text);
     border-radius: 12px;
     font-size: 13px;
     font-weight: 600;

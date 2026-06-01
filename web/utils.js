@@ -72,6 +72,16 @@ export const Storage = {
   saveCardLayoutMode(mode) {
     localStorage.setItem('prompt-gallery-card-layout', mode);
   },
+  getTheme() {
+    try {
+      return localStorage.getItem('prompt-gallery-theme') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  },
+  saveTheme(theme) {
+    localStorage.setItem('prompt-gallery-theme', theme);
+  },
 };
 
 export function buildImageUrl(path, type) {

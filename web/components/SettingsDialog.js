@@ -14,13 +14,6 @@ const MENU_ITEMS = [
   { key: 'faq', label: '常见问题', icon: 'info-circle' },
 ];
 
-const TYPE_LABELS = {
-  prompts: 'Prompts',
-  categories: '分类',
-  combinations: '组合',
-  images: '图片映射',
-};
-
 // ───────── 图库设置面板 ─────────
 
 function GallerySettings() {
@@ -32,8 +25,33 @@ function GallerySettings() {
     Storage.saveCardLayoutMode(newMode);
   }, [ctx.setCardLayoutMode]);
 
+  const handleThemeChange = useCallback((newTheme) => {
+    ctx.setTheme(newTheme);
+  }, [ctx.setTheme]);
+
   return h('div', { class: 'settings-panel' }, [
     h('div', { class: 'settings-section-title' }, '图库设置'),
+    h('div', { class: 'settings-option-row' }, [
+      h('div', { class: 'settings-option-label' }, '主题模式'),
+      h('div', { class: 'settings-option-desc' }, '选择图库的外观主题'),
+    ]),
+    h('div', { class: 'settings-radio-group' }, [
+      h('button', {
+        class: 'settings-radio-btn' + (ctx.theme === 'dark' ? ' active' : ''),
+        onClick: () => handleThemeChange('dark'),
+      }, [
+        h(Icon, { name: 'power', size: 14 }),
+        '深色模式',
+      ]),
+      h('button', {
+        class: 'settings-radio-btn' + (ctx.theme === 'light' ? ' active' : ''),
+        onClick: () => handleThemeChange('light'),
+      }, [
+        h(Icon, { name: 'star', size: 14 }),
+        '浅色模式',
+      ]),
+    ]),
+    h('div', { class: 'settings-divider' }),
     h('div', { class: 'settings-option-row' }, [
       h('div', { class: 'settings-option-label' }, '卡片展示方式'),
       h('div', { class: 'settings-option-desc' }, '选择图库中卡片的展示方式'),
@@ -72,10 +90,11 @@ function formatBackupName(name) {
 }
 
 function StorageSettings() {
-  const [files, setFiles] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [backups, setBackups] = useState([]);
   const [maxBackups, setMaxBackups] = useState(3);
   const [loading, setLoading] = useState(true);
+  const [expandedPrefix, setExpandedPrefix] = useState(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -84,7 +103,7 @@ function StorageSettings() {
         fetch('/prompt_gallery/settings/storage_files').then(r => r.json()),
         fetch('/prompt_gallery/settings/backups').then(r => r.json()),
       ]);
-      if (filesRes.success) setFiles(filesRes.files);
+      if (filesRes.success) setGroups(filesRes.groups);
       if (backupsRes.success) {
         setBackups(backupsRes.backups);
         if (backupsRes.maxBackups != null) setMaxBackups(backupsRes.maxBackups);
@@ -97,15 +116,15 @@ function StorageSettings() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const handleToggle = useCallback(async (filename) => {
+  const handleToggle = useCallback(async (prefix) => {
     try {
       const res = await fetch('/prompt_gallery/settings/storage_files/toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename }),
+        body: JSON.stringify({ prefix }),
       }).then(r => r.json());
       if (res.success) {
-        showToast(res.disabled ? '已禁用' : '已启用', 'success');
+        showToast(res.disabled ? '已禁用，请刷新页面生效' : '已启用，请刷新页面生效', 'success');
         loadData();
       } else {
         showToast(res.error || '操作失败', 'error');
@@ -173,35 +192,40 @@ function StorageSettings() {
     ]);
   }
 
-  // 按类型分组
-  const grouped = {};
-  for (const f of files) {
-    if (!grouped[f.type]) grouped[f.type] = [];
-    grouped[f.type].push(f);
-  }
-
   const renderFileGroups = () => {
-    const types = ['prompts', 'categories', 'combinations', 'images'];
-    return types.map(type => {
-      const group = grouped[type];
-      if (!group || group.length === 0) return null;
-      return h('div', { key: type, class: 'storage-file-group' }, [
-        h('div', { class: 'storage-file-group-header' }, [
-          h('span', {}, TYPE_LABELS[type] || type),
-          h('span', { class: 'storage-file-group-count' }, `${group.length} 个文件`),
-        ]),
-        ...group.map(f =>
-          h('div', { key: f.name, class: 'storage-file-row' + (f.disabled ? ' disabled' : '') }, [
-            h('span', { class: 'storage-file-name' }, f.name),
-            h('span', { class: 'storage-file-size' }, f.sizeFormatted || formatSize(f.size)),
-            f.isMain
-              ? h('span', { class: 'storage-file-badge' }, '主文件')
-              : h('button', {
-                  class: 'storage-toggle-btn' + (f.disabled ? ' off' : ''),
-                  onClick: () => handleToggle(f.name),
-                  title: f.disabled ? '点击启用' : '点击禁用',
-                }, h('div', { class: 'storage-toggle-knob' })),
+    if (groups.length === 0) {
+      return h('div', { class: 'storage-empty-hint' }, '暂无分片文件');
+    }
+
+    return groups.map(g => {
+      const isExpanded = expandedPrefix === g.prefix;
+      return h('div', { key: g.prefix, class: 'storage-file-group' + (g.disabled ? ' disabled' : '') }, [
+        h('div', { class: 'storage-file-row' }, [
+          h('div', {
+            class: 'storage-file-info',
+            onClick: () => setExpandedPrefix(isExpanded ? null : g.prefix),
+          }, [
+            h(Icon, {
+              name: 'chevron-right',
+              size: 12,
+              class: 'storage-file-chevron' + (isExpanded ? ' expanded' : ''),
+            }),
+            h('span', { class: 'storage-file-name' }, g.prefix),
+            h('span', { class: 'storage-file-size' }, g.totalSizeFormatted),
           ]),
+          h('button', {
+            class: 'storage-toggle-btn' + (g.disabled ? ' off' : ''),
+            onClick: (e) => { e.stopPropagation(); handleToggle(g.prefix); },
+            title: g.disabled ? '点击启用' : '点击禁用',
+          }, h('div', { class: 'storage-toggle-knob' })),
+        ]),
+        isExpanded && h('div', { class: 'storage-file-details' },
+          g.files.map(f =>
+            h('div', { key: f.name, class: 'storage-file-detail-row' }, [
+              h('span', { class: 'storage-file-detail-name' }, f.name),
+              h('span', { class: 'storage-file-detail-size' }, f.sizeFormatted),
+            ]),
+          ),
         ),
       ]);
     });
@@ -253,7 +277,7 @@ function StorageSettings() {
 
   return h('div', { class: 'settings-panel' }, [
     h('div', { class: 'settings-section-title' }, '存储文件'),
-    ...renderFileGroups(),
+    renderFileGroups(),
     h('div', { class: 'settings-divider' }),
     h('div', { class: 'settings-section-title' }, '备份管理'),
     h('div', { class: 'backup-list' }, renderBackups()),

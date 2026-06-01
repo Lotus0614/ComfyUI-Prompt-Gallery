@@ -12,10 +12,10 @@
 .context-menu {
     position: absolute;
     min-width: 160px;
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: var(--g-menu-bg);
+    border: 1px solid var(--g-menu-border);
     border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 12px var(--g-shadow-light);
     z-index: 99999;
     padding: 6px;
     animation: contextMenuFadeIn 0.15s ease-out;
@@ -42,13 +42,13 @@
     cursor: pointer;
     transition: all 0.15s;
     font-size: 14px;
-    color: #333;
+    color: var(--g-text);
     border-radius: 6px;
 }
 
 .context-menu-item:hover {
-    background: #fff5f8;
-    color: #ff6b9d;
+    background: var(--g-menu-hover);
+    color: var(--g-accent);
 }
 
 .context-menu-icon {

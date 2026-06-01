@@ -4,7 +4,7 @@
     gap: 8px;
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #ffb6c1;
+    border-bottom: 2px solid var(--g-border);
 }
 
 .gallery-dialog-tab {
@@ -28,16 +28,16 @@
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #ff6b9d;
+    color: var(--g-accent);
 }
 
 .gallery-form-input {
     width: 100%;
     padding: 10px 14px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-input-border);
     border-radius: 12px;
-    background: #fff5f8;
-    color: #4a4a4a;
+    background: var(--g-input-bg);
+    color: var(--g-text);
     font-size: 13px;
     box-sizing: border-box;
     transition: all 0.2s;
@@ -45,17 +45,17 @@
 
 .gallery-form-input:focus {
     outline: none;
-    border-color: #ff6b9d;
-    background: #fff;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .gallery-form-textarea {
     width: 100%;
     padding: 12px 14px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-input-border);
     border-radius: 12px;
-    background: #fff5f8;
-    color: #4a4a4a;
+    background: var(--g-input-bg);
+    color: var(--g-text);
     box-sizing: border-box;
     resize: vertical;
     font-family: monospace;
@@ -65,8 +65,8 @@
 
 .gallery-form-textarea:focus {
     outline: none;
-    border-color: #ff6b9d;
-    background: #fff;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .gallery-dialog-actions {
@@ -80,13 +80,13 @@
     margin-bottom: 15px;
     line-height: 1.6;
     font-size: 14px;
-    color: #4a4a4a;
+    color: var(--g-text);
     font-weight: 500;
 }
 
 .gallery-delete-warning {
     font-size: 13px;
-    color: #ff6b9d;
+    color: var(--g-accent);
     margin-bottom: 20px;
     font-weight: 600;
 }
@@ -95,11 +95,11 @@
 .gallery-dialog-content {
     max-width: 500px;
     width: 90%;
-    max-height: 500px; /* 固定最大高度，不会随父容器扩展 */
+    max-height: 500px;
     margin: auto;
-    background: white;
+    background: var(--g-dialog-bg);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px var(--g-shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -109,14 +109,14 @@
 .gallery-dialog-content .gallery-modal-body {
     overflow-y: auto;
     flex: 1;
-    padding: 16px; /* 添加内边距让内容不贴边 */
+    padding: 16px;
 }
 
 /* 对话框的底部操作区需要 padding */
 .gallery-dialog-content .gallery-dialog-actions {
-    padding: 12px 16px 16px 16px; /* 上 右 下 左 */
-    border-top: 1px solid #eee; /* 添加顶部边框分隔 */
-    background: #fafafa; /* 浅灰色背景区分 */
+    padding: 12px 16px 16px 16px;
+    border-top: 1px solid var(--g-border-light);
+    background: var(--g-bg-secondary);
 }
 
 /* ============ 分类对话框样式 ============ */
@@ -133,17 +133,17 @@
     margin-bottom: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: #ff6b9d;
+    color: var(--g-accent);
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
     padding: 10px 12px;
-    background: #fff5f8;
-    border: 2px solid #ffb6c1;
+    background: var(--g-input-bg);
+    border: 2px solid var(--g-input-border);
     border-radius: 8px;
-    color: #333;
+    color: var(--g-text);
     font-size: 14px;
     transition: border-color 0.2s;
 }
@@ -151,18 +151,18 @@
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #ff6b9d;
-    background: white;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .form-group input:disabled {
-    background: #f5f5f5;
-    color: #999;
+    background: var(--g-bg-hover);
+    color: var(--g-text-muted);
     cursor: not-allowed;
 }
 
 .dialog-error {
-    background: #ef4444;
+    background: var(--g-error);
     color: white;
     padding: 10px 12px;
     border-radius: 8px;
@@ -179,8 +179,8 @@
 
 .move-target-info {
     padding: 14px 18px;
-    background: #fff5f8;
-    border: 2px solid #ffb6c1;
+    background: var(--g-bg-input);
+    border: 2px solid var(--g-border);
     border-radius: 8px;
     font-size: 13px;
     display: flex;
@@ -189,15 +189,15 @@
 }
 
 .target-name {
-    color: #ff6b9d;
+    color: var(--g-accent);
     font-weight: 600;
 }
 
 /* ============ Copy Dialog 复制对话框 ============ */
 .copy-dialog-source {
     padding: 14px 18px;
-    background: #fff5f8;
-    border: 2px solid #ffb6c1;
+    background: var(--g-bg-input);
+    border: 2px solid var(--g-border);
     border-radius: 8px;
     margin-bottom: 16px;
 }
@@ -205,13 +205,13 @@
 .copy-dialog-label {
     font-size: 12px;
     font-weight: 600;
-    color: #ff6b9d;
+    color: var(--g-accent);
     margin-bottom: 6px;
 }
 
 .copy-dialog-source-name {
     font-size: 14px;
-    color: #333;
+    color: var(--g-text);
     font-weight: 600;
 }
 
@@ -233,8 +233,8 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    background: #e8f5e9;
-    border: 2px solid #4caf50;
+    background: rgba(76, 175, 80, 0.15);
+    border: 2px solid var(--g-success);
     border-radius: 8px;
     margin-top: 12px;
 }
@@ -242,12 +242,12 @@
 .copy-dialog-selected-label {
     font-size: 13px;
     font-weight: 600;
-    color: #2e7d32;
+    color: var(--g-success);
 }
 
 .copy-dialog-selected-value {
     font-size: 14px;
-    color: #1b5e20;
+    color: var(--g-text);
     font-weight: 600;
 }
 
@@ -260,7 +260,7 @@
 
 .export-dialog-desc {
     font-size: 13px;
-    color: #666;
+    color: var(--g-text-secondary);
     line-height: 1.5;
 }
 
@@ -275,27 +275,27 @@
     align-items: flex-start;
     gap: 10px;
     padding: 12px 14px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-border);
     border-radius: 10px;
-    background: #fff5f8;
+    background: var(--g-bg-input);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .export-dialog-option:hover {
-    border-color: #ff6b9d;
-    background: #fff;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
 }
 
 .export-dialog-option.active {
-    border-color: #ff6b9d;
-    background: #fff;
-    box-shadow: 0 0 0 1px #ff6b9d;
+    border-color: var(--g-accent);
+    background: var(--g-input-focus-bg);
+    box-shadow: 0 0 0 1px var(--g-accent);
 }
 
 .export-dialog-option input[type="radio"] {
     margin-top: 3px;
-    accent-color: #ff6b9d;
+    accent-color: var(--g-accent);
     flex-shrink: 0;
 }
 
@@ -311,7 +311,7 @@
     gap: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: #333;
+    color: var(--g-text);
 }
 
 .export-dialog-option-title svg {
@@ -321,7 +321,7 @@
 
 .export-dialog-option-desc {
     font-size: 12px;
-    color: #888;
+    color: var(--g-text-muted);
     line-height: 1.4;
 }
 
@@ -330,28 +330,28 @@
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    background: #fff5f8;
+    background: var(--g-bg-input);
     border-radius: 8px;
 }
 
 .export-dialog-max-images-label {
     font-size: 13px;
-    color: #555;
+    color: var(--g-text-secondary);
     white-space: nowrap;
 }
 
 .export-dialog-max-images-input {
     width: 80px;
     padding: 6px 10px;
-    border: 2px solid #ffb6c1;
+    border: 2px solid var(--g-input-border);
     border-radius: 6px;
-    background: #fff;
-    color: #333;
+    background: var(--g-input-focus-bg);
+    color: var(--g-text);
     font-size: 13px;
     text-align: center;
 }
 
 .export-dialog-max-images-input:focus {
     outline: none;
-    border-color: #ff6b9d;
+    border-color: var(--g-accent);
 }

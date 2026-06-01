@@ -4,23 +4,27 @@
 - 备份管理（查看、应用备份）
 """
 import json
+import re
 import shutil
 from pathlib import Path
 from aiohttp import web
 import server
 
-from ..storage._config import get_disabled_files, toggle_disabled_file, get_max_backups, set_max_backups
+from ..storage._config import get_disabled_files, toggle_disabled_files, get_max_backups, set_max_backups
 from ..storage._resolve import clear_all_caches, _resolve_storage_dir
 from ..storage.backup import BackupManager
 
 MAIN_FILES = {"prompts.json", "categories.json", "combinations.json", "images.json"}
 
 STORAGE_TYPES = [
-    {"key": "prompts", "label": "Prompts", "main": "prompts.json", "glob": "*.prompts.json"},
-    {"key": "categories", "label": "Categories", "main": "categories.json", "glob": "*.categories.json"},
-    {"key": "combinations", "label": "Combinations", "main": "combinations.json", "glob": "*.combinations.json"},
-    {"key": "images", "label": "Images", "main": "images.json", "glob": "*.images.json"},
+    {"key": "prompts", "main": "prompts.json", "glob": "*.prompts.json"},
+    {"key": "categories", "main": "categories.json", "glob": "*.categories.json"},
+    {"key": "combinations", "main": "combinations.json", "glob": "*.combinations.json"},
+    {"key": "images", "main": "images.json", "glob": "*.images.json"},
 ]
+
+# 匹配 prefix.type.json 中的 prefix 部分
+_PREFIX_RE = re.compile(r'^(.+)\.(prompts|categories|combinations|images)\.json$')
 
 
 def _format_size(size_bytes):
@@ -32,40 +36,55 @@ def _format_size(size_bytes):
         return f"{size_bytes / (1024 * 1024):.1f} MB"
 
 
+def _extract_prefix(filename):
+    """从分片文件名中提取 prefix，主文件返回 None"""
+    m = _PREFIX_RE.match(filename)
+    return m.group(1) if m else None
+
+
 @server.PromptServer.instance.routes.get("/prompt_gallery/settings/storage_files")
 async def get_storage_files(request):
     try:
         storage_dir = _resolve_storage_dir()
         disabled = get_disabled_files(storage_dir)
-        files = []
 
+        # 收集所有分片文件，按 prefix 分组
+        prefix_map = {}  # prefix -> {files: [...], size: int, disabled: bool}
         for st in STORAGE_TYPES:
-            main_path = storage_dir / st["main"]
-            if main_path.exists():
-                stat = main_path.stat()
-                files.append({
-                    "name": st["main"],
-                    "type": st["key"],
-                    "size": stat.st_size,
-                    "sizeFormatted": _format_size(stat.st_size),
-                    "isMain": True,
-                    "disabled": False,
-                })
-
             for f in sorted(storage_dir.glob(st["glob"])):
                 if f.name == st["main"]:
                     continue
+                prefix = _extract_prefix(f.name)
+                if not prefix:
+                    continue
                 stat = f.stat()
-                files.append({
+                if prefix not in prefix_map:
+                    prefix_map[prefix] = {"files": [], "totalSize": 0, "disabled": True}
+                entry = prefix_map[prefix]
+                entry["files"].append({
                     "name": f.name,
                     "type": st["key"],
                     "size": stat.st_size,
                     "sizeFormatted": _format_size(stat.st_size),
-                    "isMain": False,
-                    "disabled": f.name in disabled,
                 })
+                entry["totalSize"] += stat.st_size
+                if f.name not in disabled:
+                    entry["disabled"] = False
 
-        return web.json_response({"success": True, "files": files})
+        # 转为前端需要的列表格式
+        groups = []
+        for prefix in sorted(prefix_map.keys()):
+            entry = prefix_map[prefix]
+            groups.append({
+                "prefix": prefix,
+                "files": entry["files"],
+                "fileCount": len(entry["files"]),
+                "totalSize": entry["totalSize"],
+                "totalSizeFormatted": _format_size(entry["totalSize"]),
+                "disabled": entry["disabled"],
+            })
+
+        return web.json_response({"success": True, "groups": groups})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -74,15 +93,24 @@ async def get_storage_files(request):
 async def toggle_storage_file(request):
     try:
         data = await request.json()
-        filename = data.get("filename", "").strip()
+        prefix = data.get("prefix", "").strip()
 
-        if not filename:
-            return web.json_response({"error": "文件名不能为空"}, status=400)
-        if filename in MAIN_FILES:
-            return web.json_response({"error": "不能禁用主文件"}, status=400)
+        if not prefix:
+            return web.json_response({"error": "prefix 不能为空"}, status=400)
 
         storage_dir = _resolve_storage_dir()
-        is_disabled = toggle_disabled_file(storage_dir, filename)
+
+        # 找到该 prefix 下所有文件
+        filenames = []
+        for st in STORAGE_TYPES:
+            for f in storage_dir.glob(f"{prefix}.{st['key']}.json"):
+                if f.name != st["main"]:
+                    filenames.append(f.name)
+
+        if not filenames:
+            return web.json_response({"error": "未找到对应文件"}, status=404)
+
+        is_disabled = toggle_disabled_files(storage_dir, filenames)
         clear_all_caches()
 
         return web.json_response({"success": True, "disabled": is_disabled})

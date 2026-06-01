@@ -21,3 +21,223 @@
   --card-name-tag-font: 13px;
   --card-value-tag-font: 11px;
 }
+
+/* ============ 主题颜色变量（默认深色模式） ============ */
+:root {
+  /* 背景色 */
+  --g-bg-primary: #1e1e1e;
+  --g-bg-secondary: #252525;
+  --g-bg-elevated: #2a2a2a;
+  --g-bg-hover: #3a3a3a;
+  --g-bg-input: #1a1a1a;
+  --g-bg-overlay: rgba(0, 0, 0, 0.7);
+  --g-bg-gradient: #1e1e1e;
+
+  /* 边框色 */
+  --g-border: #3a3a3a;
+  --g-border-light: #333;
+  --g-border-hover: #4a4a4a;
+
+  /* 强调色 */
+  --g-accent: #6c5ce7;
+  --g-accent-hover: #7c6cf7;
+  --g-accent-light: rgba(108, 92, 231, 0.15);
+  --g-accent-bg: rgba(108, 92, 231, 0.1);
+
+  /* 文字色 */
+  --g-text: #e0e0e0;
+  --g-text-secondary: #bbb;
+  --g-text-muted: #888;
+  --g-text-hint: #666;
+
+  /* 阴影 */
+  --g-shadow: rgba(0, 0, 0, 0.5);
+  --g-shadow-light: rgba(0, 0, 0, 0.2);
+
+  /* 交互状态 */
+  --g-hover-bg: #2a2a2a;
+  --g-selected-bg: rgba(108, 92, 231, 0.15);
+  --g-active-bg: #6c5ce7;
+  --g-active-text: #fff;
+
+  /* 头部/底部栏 */
+  --g-header-bg: #252525;
+  --g-header-border: #333;
+
+  /* 滚动条 */
+  --g-scrollbar-track: rgba(30, 30, 30, 0.5);
+  --g-scrollbar-thumb: #444;
+
+  /* 输入框 */
+  --g-input-bg: #1a1a1a;
+  --g-input-border: #3a3a3a;
+  --g-input-focus-border: #6c5ce7;
+  --g-input-focus-bg: #1e1e1e;
+
+  /* 语义色 */
+  --g-success: #4caf50;
+  --g-error: #f44336;
+  --g-warning: #f9a825;
+  --g-info: #3b82f6;
+
+  /* 收藏 */
+  --g-fav-color: #ffd700;
+  --g-fav-bg: #3a3520;
+
+  /* 浮动按钮 */
+  --g-float-btn-bg: #6c5ce7;
+  --g-float-btn-border: #7c6cf7;
+  --g-float-btn-hover: #7c6cf7;
+  --g-float-btn-shadow: rgba(108, 92, 231, 0.4);
+
+  /* 批量操作栏 */
+  --g-batch-gradient: linear-gradient(135deg, #6c5ce7 0%, #3b82f6 100%);
+
+  /* 对话框 */
+  --g-dialog-bg: #1e1e1e;
+  --g-dialog-header-bg: #252525;
+  --g-dialog-border: #333;
+
+  /* 右键菜单 */
+  --g-menu-bg: #2a2a2a;
+  --g-menu-border: #444;
+  --g-menu-hover: #3a3a3a;
+
+  /* Toast */
+  --g-toast-bg: #2a2a2a;
+  --g-toast-border: #444;
+  --g-toast-text: #e0e0e0;
+
+  /* 面包屑 */
+  --g-breadcrumb-text: #999;
+  --g-breadcrumb-active: #e0e0e0;
+  --g-breadcrumb-separator: #555;
+
+  /* 拖拽区 */
+  --g-drag-border: #4a4a4a;
+  --g-drag-bg: rgba(42, 42, 42, 0.5);
+
+  /* 滑块 */
+  --g-slider-track: linear-gradient(90deg, #4a4a4a, #6c5ce7);
+  --g-slider-thumb: #e0e0e0;
+  --g-slider-thumb-border: #6c5ce7;
+
+  /* 历史按钮 */
+  --g-history-btn-bg: rgba(108, 92, 231, 0.9);
+  --g-history-btn-border: #7c6cf7;
+  --g-history-btn-hover: #7c6cf7;
+  --g-history-btn-shadow: rgba(108, 92, 231, 0.4);
+
+  /* 设置侧边栏 */
+  --g-settings-sidebar-border: #333;
+}
+
+/* ============ 浅色主题 ============ */
+[data-theme="light"] {
+  /* 背景色 */
+  --g-bg-primary: #fff5f8;
+  --g-bg-secondary: #fff;
+  --g-bg-elevated: #fff;
+  --g-bg-hover: #ffeef2;
+  --g-bg-input: #fff5f8;
+  --g-bg-overlay: rgba(0, 0, 0, 0.7);
+  --g-bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+
+  /* 边框色 */
+  --g-border: #ffb6c1;
+  --g-border-light: rgba(255, 182, 159, 0.3);
+  --g-border-hover: #ff6b9d;
+
+  /* 强调色 */
+  --g-accent: #ff6b9d;
+  --g-accent-hover: #ff5a8d;
+  --g-accent-light: rgba(255, 107, 157, 0.1);
+  --g-accent-bg: rgba(255, 107, 157, 0.05);
+
+  /* 文字色 */
+  --g-text: #4a4a4a;
+  --g-text-secondary: #666;
+  --g-text-muted: #999;
+  --g-text-hint: #888;
+
+  /* 阴影 */
+  --g-shadow: rgba(255, 107, 157, 0.3);
+  --g-shadow-light: rgba(255, 182, 159, 0.2);
+
+  /* 交互状态 */
+  --g-hover-bg: #ffeef2;
+  --g-selected-bg: #ffeef2;
+  --g-active-bg: #ff6b9d;
+  --g-active-text: #fff;
+
+  /* 头部/底部栏 */
+  --g-header-bg: rgba(255, 255, 255, 0.95);
+  --g-header-border: #ffb6c1;
+
+  /* 滚动条 */
+  --g-scrollbar-track: #fff5f8;
+  --g-scrollbar-thumb: #ffb6c1;
+
+  /* 输入框 */
+  --g-input-bg: #fff5f8;
+  --g-input-border: #ffb6c1;
+  --g-input-focus-border: #ff6b9d;
+  --g-input-focus-bg: #fff;
+
+  /* 语义色 */
+  --g-success: #4caf50;
+  --g-error: #ff4444;
+  --g-warning: #ffc107;
+  --g-info: #17a2b8;
+
+  /* 收藏 */
+  --g-fav-color: #ffd700;
+  --g-fav-bg: #fffbe6;
+
+  /* 浮动按钮 */
+  --g-float-btn-bg: rgba(255, 107, 157, 0.9);
+  --g-float-btn-border: #ffb6c1;
+  --g-float-btn-hover: rgba(255, 90, 141, 1);
+  --g-float-btn-shadow: rgba(255, 107, 157, 0.4);
+
+  /* 批量操作栏 */
+  --g-batch-gradient: linear-gradient(135deg, #ff6b9d 0%, #ffb6c1 100%);
+
+  /* 对话框 */
+  --g-dialog-bg: #fff;
+  --g-dialog-header-bg: #fff5f8;
+  --g-dialog-border: #ffb6c1;
+
+  /* 右键菜单 */
+  --g-menu-bg: #fff;
+  --g-menu-border: #e0e0e0;
+  --g-menu-hover: #fff5f8;
+
+  /* Toast */
+  --g-toast-bg: #fff;
+  --g-toast-border: #e0e0e0;
+  --g-toast-text: #333;
+
+  /* 面包屑 */
+  --g-breadcrumb-text: #666;
+  --g-breadcrumb-active: #ff6b9d;
+  --g-breadcrumb-separator: #ffb6c1;
+
+  /* 拖拽区 */
+  --g-drag-border: #ffb6c1;
+  --g-drag-bg: #fff5f8;
+
+  /* 滑块 */
+  --g-slider-track: linear-gradient(90deg, #ffb6c1, #ff6b9d);
+  --g-slider-thumb: #fff;
+  --g-slider-thumb-border: #ff6b9d;
+
+  /* 历史按钮 */
+  --g-history-btn-bg: rgba(255, 107, 157, 0.9);
+  --g-history-btn-border: #ffb6c1;
+  --g-history-btn-hover: rgba(255, 90, 141, 1);
+  --g-history-btn-shadow: rgba(255, 107, 157, 0.4);
+
+  /* 设置侧边栏 */
+  --g-settings-sidebar-border: #ffe0eb;
+}

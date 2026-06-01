@@ -3,7 +3,7 @@
     flex: 0 0 auto;
     width: var(--card-category-width);
     height: var(--card-row-height);
-    background: white;
+    background: var(--g-bg-elevated);
     border-radius: 16px;
     padding: var(--card-category-padding);
     display: flex;
@@ -11,7 +11,7 @@
     gap: var(--card-header-gap);
     cursor: pointer;
     transition: transform 0.2s, border-color 0.2s;
-    box-shadow: 0 2px 8px rgba(255, 107, 157, 0.1);
+    box-shadow: 0 2px 8px var(--g-shadow-light);
     border: 2px solid transparent;
     position: relative;
     box-sizing: border-box;
@@ -19,8 +19,8 @@
 
 .category-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(255, 107, 157, 0.2);
-    border-color: #ffb6c1;
+    box-shadow: 0 4px 16px var(--g-shadow);
+    border-color: var(--g-border);
 }
 
 .category-icon {
@@ -46,7 +46,7 @@
 .category-name {
     font-size: var(--card-category-name-font);
     font-weight: 700;
-    color: #ff6b9d;
+    color: var(--g-accent);
     margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -55,7 +55,7 @@
 
 .category-meta {
     font-size: var(--card-category-meta-font);
-    color: #999;
+    color: var(--g-text-muted);
 }
 
 /* ============ 面包屑导航样式 ============ */
@@ -76,7 +76,7 @@
 .breadcrumb-link {
     background: none;
     border: none;
-    color: #666;
+    color: var(--g-breadcrumb-text);
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
@@ -88,18 +88,18 @@
 }
 
 .breadcrumb-link:hover:not(:disabled) {
-    background: #e0e0e0;
-    color: #333;
+    background: var(--g-bg-hover);
+    color: var(--g-text);
 }
 
 .breadcrumb-link:disabled {
-    color: #333;
+    color: var(--g-breadcrumb-active);
     cursor: default;
     font-weight: 600;
 }
 
 .breadcrumb-separator {
-    color: #999;
+    color: var(--g-breadcrumb-separator);
     font-weight: 400;
     font-size: 14px;
     margin: 0 4px;

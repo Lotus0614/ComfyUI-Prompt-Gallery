@@ -6,10 +6,10 @@
   width: 40px;
   height: 40px;
   padding: 0;
-  background: rgba(255, 107, 157, 0.9);
-  border: 2px solid #ffb6c1;
+  background: var(--g-float-btn-bg);
+  border: 2px solid var(--g-float-btn-border);
   border-radius: 50%;
-  color: white;
+  color: var(--g-active-text);
   cursor: pointer;
   z-index: 10;
   transition: all 0.2s;
@@ -20,9 +20,9 @@
 }
 
 .settings-floating-btn:hover {
-  background: rgba(255, 90, 141, 1);
+  background: var(--g-float-btn-hover);
   transform: translateY(-2px) rotate(30deg);
-  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.4);
+  box-shadow: 0 4px 16px var(--g-float-btn-shadow);
 }
 
 /* ============ 设置弹窗布局 ============ */
@@ -35,7 +35,7 @@
 .settings-sidebar {
   width: 160px;
   flex-shrink: 0;
-  border-right: 1px solid #ffe0eb;
+  border-right: 1px solid var(--g-settings-sidebar-border);
   padding: 8px;
   display: flex;
   flex-direction: column;
@@ -51,7 +51,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #666;
+  color: var(--g-text-secondary);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -62,13 +62,13 @@
 }
 
 .settings-menu-item:hover {
-  background: #fff5f8;
-  color: #ff6b9d;
+  background: var(--g-hover-bg);
+  color: var(--g-accent);
 }
 
 .settings-menu-item.active {
-  background: #ff6b9d;
-  color: white;
+  background: var(--g-accent);
+  color: var(--g-active-text);
   font-weight: 600;
 }
 
@@ -86,7 +86,7 @@
 .settings-section-title {
   font-size: 16px;
   font-weight: 700;
-  color: #333;
+  color: var(--g-text);
   margin-bottom: 16px;
 }
 
@@ -96,7 +96,7 @@
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: #999;
+  color: var(--g-text-muted);
   font-size: 14px;
   gap: 8px;
 }
@@ -123,18 +123,19 @@
 .settings-option-label {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: var(--g-text);
   margin-bottom: 4px;
 }
 
 .settings-option-desc {
   font-size: 12px;
-  color: #999;
+  color: var(--g-text-muted);
 }
 
 .settings-radio-group {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .settings-radio-btn {
@@ -142,10 +143,10 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 2px solid #ffe0eb;
+  border: 2px solid var(--g-border);
   border-radius: 10px;
-  background: #fff;
-  color: #666;
+  background: var(--g-bg-elevated);
+  color: var(--g-text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -153,14 +154,14 @@
 }
 
 .settings-radio-btn:hover {
-  border-color: #ffb6c1;
-  color: #ff6b9d;
+  border-color: var(--g-accent);
+  color: var(--g-accent);
 }
 
 .settings-radio-btn.active {
-  border-color: #ff6b9d;
-  background: #fff5f8;
-  color: #ff6b9d;
+  border-color: var(--g-accent);
+  background: var(--g-accent-light);
+  color: var(--g-accent);
   font-weight: 600;
 }
 
@@ -172,83 +173,120 @@
 /* ============ 分割线 ============ */
 .settings-divider {
   height: 1px;
-  background: #ffe0eb;
+  background: var(--g-border);
   margin: 20px 0;
 }
 
-/* ============ 存储文件分组 ============ */
+/* ============ 存储文件分组（按 prefix） ============ */
 .storage-file-group {
-  border: 1px solid #ffe0eb;
-  border-radius: 12px;
+  border: 1px solid var(--g-border);
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
 }
 
-.storage-file-group-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: #fff5f8;
-  border-bottom: 1px solid #ffe0eb;
-  font-size: 13px;
-  font-weight: 600;
-  color: #ff6b9d;
-}
-
-.storage-file-group-count {
-  font-size: 11px;
-  font-weight: 400;
-  color: #999;
+.storage-file-group.disabled {
+  opacity: 0.5;
 }
 
 .storage-file-row {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #fff0f3;
+  padding: 10px 12px;
+  gap: 8px;
   transition: background 0.15s;
 }
 
-.storage-file-row:last-child {
-  border-bottom: none;
-}
-
 .storage-file-row:hover {
-  background: #fffafc;
+  background: var(--g-hover-bg);
 }
 
-.storage-file-row.disabled {
-  opacity: 0.5;
+.storage-file-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  cursor: pointer;
 }
 
-.storage-file-row.disabled .storage-file-name {
-  text-decoration: line-through;
-  color: #999;
+.storage-file-chevron {
+  flex-shrink: 0;
+  color: var(--g-text-muted);
+  transition: transform 0.15s;
+}
+
+.storage-file-chevron.expanded {
+  transform: rotate(90deg);
 }
 
 .storage-file-name {
-  flex: 1;
   font-size: 13px;
-  color: #4a4a4a;
+  font-weight: 600;
+  color: var(--g-text);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.storage-file-group.disabled .storage-file-name {
+  text-decoration: line-through;
+}
+
+.storage-file-meta {
+  font-size: 11px;
+  color: var(--g-text-muted);
+  white-space: nowrap;
+}
+
 .storage-file-size {
   font-size: 12px;
-  color: #999;
-  margin-right: 12px;
+  color: var(--g-text-muted);
   flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ============ 展开的文件详情 ============ */
+.storage-file-details {
+  border-top: 1px solid var(--g-border-light);
+  padding: 6px 12px 6px 36px;
+  animation: storage-expand 0.15s ease;
+}
+
+.storage-file-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.storage-file-detail-name {
+  color: var(--g-text-secondary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.storage-file-detail-size {
+  color: var(--g-text-muted);
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+@keyframes storage-expand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .storage-file-badge {
   font-size: 11px;
-  color: #ff6b9d;
-  background: #fff5f8;
-  border: 1px solid #ffb6c1;
+  color: var(--g-accent);
+  background: var(--g-accent-light);
+  border: 1px solid var(--g-border);
   border-radius: 8px;
   padding: 2px 8px;
   white-space: nowrap;
@@ -259,8 +297,8 @@
   width: 36px;
   height: 20px;
   border-radius: 10px;
-  border: 2px solid #ffb6c1;
-  background: #ff6b9d;
+  border: 2px solid var(--g-accent);
+  background: var(--g-accent);
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
@@ -269,8 +307,8 @@
 }
 
 .storage-toggle-btn.off {
-  background: #ddd;
-  border-color: #ccc;
+  background: var(--g-text-muted);
+  border-color: var(--g-border);
 }
 
 .storage-toggle-knob {
@@ -296,7 +334,7 @@
 /* ============ 空状态提示 ============ */
 .storage-empty-hint {
   text-align: center;
-  color: #999;
+  color: var(--g-text-muted);
   font-size: 13px;
   padding: 24px;
 }
@@ -312,14 +350,14 @@
   display: flex;
   align-items: center;
   padding: 10px 14px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 10px;
   gap: 12px;
   transition: background 0.15s;
 }
 
 .backup-row:hover {
-  background: #fff5f8;
+  background: var(--g-hover-bg);
 }
 
 .backup-info {
@@ -330,12 +368,12 @@
 .backup-name {
   font-size: 13px;
   font-weight: 600;
-  color: #333;
+  color: var(--g-text);
 }
 
 .backup-meta {
   font-size: 12px;
-  color: #999;
+  color: var(--g-text-muted);
   margin-top: 2px;
 }
 
@@ -344,10 +382,10 @@
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  border: 1px solid #ffb6c1;
+  border: 1px solid var(--g-border);
   border-radius: 8px;
-  background: #fff5f8;
-  color: #ff6b9d;
+  background: var(--g-bg-input);
+  color: var(--g-accent);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -356,9 +394,9 @@
 }
 
 .backup-apply-btn:hover {
-  background: #ff6b9d;
-  color: white;
-  border-color: #ff6b9d;
+  background: var(--g-accent);
+  color: var(--g-active-text);
+  border-color: var(--g-accent);
 }
 
 .backup-apply-btn svg {
@@ -383,26 +421,26 @@
 
 .backup-max-label {
   font-size: 12px;
-  color: #666;
+  color: var(--g-text-secondary);
   white-space: nowrap;
 }
 
 .backup-max-input {
   width: 56px;
   height: 30px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 8px;
   padding: 0 8px;
   font-size: 13px;
   text-align: center;
-  color: #333;
-  background: #fff;
+  color: var(--g-text);
+  background: var(--g-input-focus-bg);
   outline: none;
   transition: border-color 0.2s;
 }
 
 .backup-max-input:focus {
-  border-color: #ff6b9d;
+  border-color: var(--g-accent);
 }
 
 .backup-create-btn {
@@ -410,10 +448,10 @@
   align-items: center;
   gap: 4px;
   padding: 6px 14px;
-  border: 1px solid #ff6b9d;
+  border: 1px solid var(--g-accent);
   border-radius: 8px;
-  background: #ff6b9d;
-  color: white;
+  background: var(--g-accent);
+  color: var(--g-active-text);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -422,10 +460,10 @@
 }
 
 .backup-create-btn:hover {
-  background: #e55a8a;
-  border-color: #e55a8a;
+  background: var(--g-accent-hover);
+  border-color: var(--g-accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+  box-shadow: 0 2px 8px var(--g-float-btn-shadow);
 }
 
 .backup-create-btn svg {
@@ -441,14 +479,14 @@
 }
 
 .faq-item {
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 12px;
   overflow: hidden;
   transition: box-shadow 0.2s;
 }
 
 .faq-item:hover {
-  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.1);
+  box-shadow: 0 2px 8px var(--g-shadow-light);
 }
 
 .faq-question {
@@ -459,20 +497,20 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: #333;
-  background: #fff;
+  color: var(--g-text);
+  background: var(--g-bg-elevated);
   transition: background 0.15s;
   user-select: none;
 }
 
 .faq-question:hover {
-  background: #fff5f8;
+  background: var(--g-hover-bg);
 }
 
 .faq-question-icon {
   flex-shrink: 0;
   transition: transform 0.2s;
-  color: #ff6b9d;
+  color: var(--g-accent);
 }
 
 .faq-question-icon.expanded {
@@ -482,7 +520,7 @@
 .faq-answer {
   padding: 0 14px 14px 38px;
   font-size: 13px;
-  color: #4a4a4a;
+  color: var(--g-text);
   line-height: 1.7;
   animation: faq-expand 0.2s ease;
 }
@@ -511,7 +549,7 @@
 }
 
 .image-field-list {
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -520,7 +558,7 @@
   display: flex;
   align-items: center;
   padding: 6px 10px;
-  border-bottom: 1px solid #fff0f3;
+  border-bottom: 1px solid var(--g-border-light);
   transition: background 0.15s, opacity 0.15s;
   cursor: default;
 }
@@ -530,7 +568,7 @@
 }
 
 .image-field-row:hover {
-  background: #fffafc;
+  background: var(--g-hover-bg);
 }
 
 .image-field-row.dragging {
@@ -538,8 +576,8 @@
 }
 
 .image-field-row.drag-over {
-  background: #fff0f5;
-  box-shadow: inset 0 -2px 0 #ff6b9d;
+  background: var(--g-accent-light);
+  box-shadow: inset 0 -2px 0 var(--g-accent);
 }
 
 /* 拖拽手柄（六点纹理） */
@@ -551,7 +589,7 @@
   cursor: grab;
   opacity: 0.3;
   transition: opacity 0.15s;
-  background-image: radial-gradient(circle, #999 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--g-text-muted) 1px, transparent 1px);
   background-size: 6px 6px;
   background-position: center;
 }
@@ -574,7 +612,7 @@
 
 .image-field-name {
   font-size: 13px;
-  color: #4a4a4a;
+  color: var(--g-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -589,15 +627,15 @@
 }
 
 .image-field-badge.groupable {
-  color: #ff6b9d;
-  background: #fff5f8;
-  border: 1px solid #ffb6c1;
+  color: var(--g-accent);
+  background: var(--g-accent-light);
+  border: 1px solid var(--g-border);
 }
 
 .image-field-badge.options {
   color: #6c5ce7;
-  background: #f0eeff;
-  border: 1px solid #d4d0ff;
+  background: rgba(108, 92, 231, 0.1);
+  border: 1px solid rgba(108, 92, 231, 0.3);
 }
 
 .image-field-actions {
@@ -613,24 +651,24 @@
   justify-content: center;
   width: 26px;
   height: 26px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 6px;
-  background: #fff;
-  color: #999;
+  background: var(--g-bg-elevated);
+  color: var(--g-text-muted);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .image-field-action-btn:hover {
-  background: #fff5f8;
-  border-color: #ffb6c1;
-  color: #ff6b9d;
+  background: var(--g-hover-bg);
+  border-color: var(--g-accent);
+  color: var(--g-accent);
 }
 
 .image-field-action-btn.danger:hover {
-  background: #fff0f0;
-  border-color: #ffcccc;
-  color: #e74c3c;
+  background: rgba(244, 67, 54, 0.1);
+  border-color: var(--g-error);
+  color: var(--g-error);
 }
 
 .image-field-action-btn:disabled {
@@ -647,10 +685,10 @@
   align-items: center;
   gap: 4px;
   padding: 5px 12px;
-  border: 1px solid #ffb6c1;
+  border: 1px solid var(--g-border);
   border-radius: 6px;
-  background: #fff5f8;
-  color: #ff6b9d;
+  background: var(--g-bg-input);
+  color: var(--g-accent);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -658,9 +696,9 @@
 }
 
 .image-field-add-btn:hover {
-  background: #ff6b9d;
-  color: white;
-  border-color: #ff6b9d;
+  background: var(--g-accent);
+  color: var(--g-active-text);
+  border-color: var(--g-accent);
 }
 
 .image-field-add-btn svg {
@@ -670,7 +708,7 @@
 
 .image-field-empty {
   text-align: center;
-  color: #999;
+  color: var(--g-text-muted);
   font-size: 13px;
   padding: 24px;
 }
@@ -681,5 +719,5 @@
   gap: 4px;
   margin-top: 8px;
   font-size: 11px;
-  color: #bbb;
+  color: var(--g-text-hint);
 }

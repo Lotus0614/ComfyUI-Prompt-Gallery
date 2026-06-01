@@ -6,9 +6,9 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-  border: 3px solid #ffb6c1;
-  box-shadow: 0 4px 20px rgba(255, 107, 157, 0.4);
+  background: var(--g-bg-gradient);
+  border: 3px solid var(--g-float-btn-border);
+  box-shadow: 0 4px 20px var(--g-float-btn-shadow);
   cursor: move;
   display: flex;
   align-items: center;
@@ -22,7 +22,7 @@
 }
 
 #prompt-gallery-floating-btn:hover {
-  box-shadow: 0 6px 30px rgba(255, 107, 157, 0.6);
+  box-shadow: 0 6px 30px var(--g-float-btn-shadow);
   transform: scale(1.1);
 }
 

@@ -38,6 +38,11 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation }
   const [favorites, setFavorites] = useState(Storage.getFavorites());
   const [cardSize, setCardSize] = useState(() => Storage.getCardSize());
   const [cardLayoutMode, setCardLayoutMode] = useState(() => Storage.getCardLayoutMode());
+  const [theme, setThemeState] = useState(() => Storage.getTheme());
+  const setTheme = useCallback((newTheme) => {
+    setThemeState(newTheme);
+    Storage.saveTheme(newTheme);
+  }, []);
   const [viewMode, setViewMode] = useState('gallery');
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [imageSearchQuery, setImageSearchQuery] = useState('');
@@ -824,6 +829,8 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation }
       setCardSize,
       cardLayoutMode,
       setCardLayoutMode,
+      theme,
+      setTheme,
       imageSearchQuery,
       setImageSearchQuery,
       imageSortBy,

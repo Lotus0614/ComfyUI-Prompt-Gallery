@@ -11,7 +11,7 @@
     width: 80px;
     height: 6px;
     border-radius: 3px;
-    background: linear-gradient(90deg, #ffb6c1, #ff6b9d);
+    background: var(--g-slider-track);
     outline: none;
     cursor: pointer;
 }
@@ -22,30 +22,30 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #fff;
-    border: 2px solid #ff6b9d;
+    background: var(--g-slider-thumb);
+    border: 2px solid var(--g-slider-thumb-border);
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 1px 4px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 1px 4px var(--g-shadow-light);
 }
 
 .gallery-size-slider input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    box-shadow: 0 2px 8px rgba(255, 107, 157, 0.5);
+    box-shadow: 0 2px 8px var(--g-shadow);
 }
 
 .gallery-size-slider input[type="range"]::-moz-range-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #fff;
-    border: 2px solid #ff6b9d;
+    background: var(--g-slider-thumb);
+    border: 2px solid var(--g-slider-thumb-border);
     cursor: pointer;
 }
 
 .gallery-size-label {
     font-size: 12px;
-    color: #ff6b9d;
+    color: var(--g-accent);
     font-weight: 600;
     min-width: 16px;
     text-align: center;

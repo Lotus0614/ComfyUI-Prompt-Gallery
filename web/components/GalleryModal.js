@@ -46,7 +46,7 @@ function GalleryModalContent() {
       },
     },
     [
-      h('div', { class: 'gallery-modal-content' }, [
+      h('div', { class: 'gallery-modal-content', 'data-theme': ctx.theme }, [
         h(GalleryHeader),
         h('div', { class: 'gallery-modal-body' }, h(GalleryBody)),
         h('button', {

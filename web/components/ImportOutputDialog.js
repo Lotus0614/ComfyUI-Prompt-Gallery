@@ -80,18 +80,18 @@ export function ImportOutputDialog({ isOpen, onClose, onSuccess }) {
     h('div', {
       style: {
         padding: '10px 14px',
-        background: '#fff5f8',
-        border: '1px solid #ffb6c1',
+        background: 'var(--g-bg-input)',
+        border: '1px solid var(--g-border)',
         borderRadius: '8px',
         fontSize: '12px',
-        color: '#888',
+        color: 'var(--g-text-muted)',
         marginBottom: '16px',
         lineHeight: '1.5',
       },
     }, [
       h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' } }, [
         h(Icon, { name: 'info-circle', size: 14 }),
-        h('span', { style: { fontWeight: '600', color: '#666' } }, '存储说明'),
+        h('span', { style: { fontWeight: '600', color: 'var(--g-text-secondary)' } }, '存储说明'),
       ]),
       h('div', {}, '数据将存储为: comfy_output.images.json'),
       h('div', {}, '可在插件存储目录中删除此文件以移除所有导入'),
@@ -129,12 +129,12 @@ function _renderRadioOption(value, label, desc, filterMode, setFilterMode) {
       alignItems: 'center',
       gap: '6px',
       padding: '8px 14px',
-      border: `2px solid ${selected ? '#ff6b9d' : '#ffb6c1'}`,
+      border: `2px solid ${selected ? 'var(--g-accent)' : 'var(--g-border)'}`,
       borderRadius: '8px',
       cursor: 'pointer',
       fontSize: '13px',
-      background: selected ? '#fff0f5' : '#fff5f8',
-      color: '#333',
+      background: selected ? 'var(--g-accent-light)' : 'var(--g-bg-input)',
+      color: 'var(--g-text)',
     },
   }, [
     h('input', {
@@ -143,9 +143,9 @@ function _renderRadioOption(value, label, desc, filterMode, setFilterMode) {
       value,
       checked: selected,
       onChange: () => setFilterMode(value),
-      style: { accentColor: '#ff6b9d' },
+      style: { accentColor: 'var(--g-accent)' },
     }),
     h('span', {}, label),
-    h('span', { style: { fontSize: '11px', color: '#999' } }, `（${desc}）`),
+    h('span', { style: { fontSize: '11px', color: 'var(--g-text-muted)' } }, `（${desc}）`),
   ]);
 }

@@ -7,19 +7,19 @@
 
 /* 拖拽区域 */
 .drag-drop-zone {
-  border: 2px dashed #ffb6c1;
+  border: 2px dashed var(--g-drag-border);
   border-radius: 16px;
   padding: 40px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  background: #fff5f8;
+  background: var(--g-drag-bg);
 }
 
 .drag-drop-zone:hover,
 .drag-drop-zone.dragging {
-  border-color: #ff6b9d;
-  background: rgba(255, 107, 157, 0.05);
+  border-color: var(--g-accent);
+  background: var(--g-accent-bg);
   transform: scale(1.02);
 }
 
@@ -31,30 +31,30 @@
 .drag-drop-text {
   font-size: 16px;
   font-weight: 600;
-  color: #ff6b9d;
+  color: var(--g-accent);
   margin-bottom: 5px;
 }
 
 .drag-drop-hint {
   font-size: 14px;
-  color: #999;
+  color: var(--g-text-muted);
 }
 
 /* 文件列表 */
 .file-list {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #ffb6c1;
+  border: 1px solid var(--g-border);
   border-radius: 12px;
   margin-top: 15px;
-  background: white;
+  background: var(--g-bg-elevated);
 }
 
 .file-item {
   display: flex;
   align-items: center;
   padding: 10px 15px;
-  border-bottom: 1px solid #ffeef2;
+  border-bottom: 1px solid var(--g-border-light);
   transition: background 0.2s;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .file-item:hover {
-  background: #fff5f8;
+  background: var(--g-hover-bg);
 }
 
 .file-name {
@@ -72,18 +72,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
+  color: var(--g-text);
 }
 
 .file-size {
   margin: 0 15px;
-  color: #999;
+  color: var(--g-text-muted);
   font-size: 12px;
 }
 
 .file-remove {
   background: none;
   border: none;
-  color: #999;
+  color: var(--g-text-muted);
   cursor: pointer;
   font-size: 18px;
   padding: 0;
@@ -97,14 +98,14 @@
 }
 
 .file-remove:hover {
-  color: #ff4444;
-  background: rgba(255, 68, 68, 0.1);
+  color: var(--g-error);
+  background: rgba(244, 67, 54, 0.1);
 }
 
 .file-stats {
   margin-top: 10px;
   text-align: right;
-  color: #ff6b9d;
+  color: var(--g-accent);
   font-size: 14px;
   font-weight: 600;
 }
@@ -113,9 +114,9 @@
 .import-config {
   margin-top: 20px;
   padding: 15px;
-  background: #fff5f8;
+  background: var(--g-bg-input);
   border-radius: 12px;
-  border: 1px solid #ffb6c1;
+  border: 1px solid var(--g-border);
 }
 
 .import-config .form-group {
@@ -129,7 +130,7 @@
 .import-config label {
   display: block;
   font-weight: 600;
-  color: #ff6b9d;
+  color: var(--g-accent);
   margin-bottom: 5px;
   font-size: 14px;
 }
@@ -138,17 +139,18 @@
 .import-config select {
   width: 100%;
   padding: 8px 12px;
-  border: 2px solid #ffb6c1;
+  border: 2px solid var(--g-input-border);
   border-radius: 8px;
   font-size: 14px;
-  background: white;
+  background: var(--g-bg-elevated);
+  color: var(--g-text);
   box-sizing: border-box;
 }
 
 .import-config input[type='text']:focus,
 .import-config select:focus {
   outline: none;
-  border-color: #ff6b9d;
+  border-color: var(--g-accent);
 }
 
 .import-config .form-checkbox {
@@ -173,9 +175,9 @@
   display: inline-block;
   font-size: 10px;
   font-weight: 700;
-  color: #ff6b9d;
-  background: #fff0f3;
-  border: 1px solid #ffb6c1;
+  color: var(--g-accent);
+  background: var(--g-accent-light);
+  border: 1px solid var(--g-border);
   border-radius: 4px;
   padding: 1px 5px;
   margin-left: 4px;
@@ -188,10 +190,10 @@
 .import-single-prompt-hint {
   margin-top: 20px;
   padding: 15px;
-  background: rgba(40, 167, 69, 0.1);
-  border: 1px solid #28a745;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid var(--g-success);
   border-radius: 12px;
-  color: #28a745;
+  color: var(--g-success);
   text-align: center;
   font-weight: 600;
 }
@@ -204,14 +206,14 @@
 .import-preview {
   margin-top: 20px;
   padding: 15px;
-  background: #f8f9fa;
+  background: var(--g-bg-hover);
   border-radius: 12px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--g-border);
 }
 
 .import-preview h4 {
   margin: 0 0 10px 0;
-  color: #ff6b9d;
+  color: var(--g-accent);
   font-size: 16px;
 }
 
@@ -227,18 +229,19 @@
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 12px;
-  background: white;
-  border: 1px solid #dee2e6;
+  background: var(--g-bg-elevated);
+  border: 1px solid var(--g-border);
+  color: var(--g-text);
 }
 
 .stat-item.success {
-  color: #28a745;
-  border-color: #28a745;
+  color: var(--g-success);
+  border-color: var(--g-success);
 }
 
 .stat-item.warning {
-  color: #ffc107;
-  border-color: #ffc107;
+  color: var(--g-warning);
+  border-color: var(--g-warning);
 }
 
 .preview-list {
@@ -250,8 +253,9 @@
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--g-border);
   font-size: 13px;
+  color: var(--g-text);
 }
 
 .preview-item:last-child {
@@ -259,7 +263,7 @@
 }
 
 .preview-item.matched {
-  background: rgba(40, 167, 69, 0.05);
+  background: rgba(76, 175, 80, 0.05);
 }
 
 .preview-item.unmatched {
@@ -280,15 +284,15 @@
 }
 
 .preview-prompt.success {
-  color: #28a745;
+  color: var(--g-success);
 }
 
 .preview-prompt.warning {
-  color: #ffc107;
+  color: var(--g-warning);
 }
 
 .preview-badge {
-  background: #007bff;
+  background: var(--g-info);
   color: white;
   padding: 2px 8px;
   border-radius: 12px;
@@ -298,7 +302,7 @@
 
 .preview-more {
   text-align: center;
-  color: #666;
+  color: var(--g-text-secondary);
   font-size: 13px;
   padding: 10px;
   font-style: italic;
@@ -308,7 +312,7 @@
 .form-hint {
   margin-top: 5px;
   font-size: 12px;
-  color: #666;
+  color: var(--g-text-secondary);
   font-style: italic;
   line-height: 1.4;
 }

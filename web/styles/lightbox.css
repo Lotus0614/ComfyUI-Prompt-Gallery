@@ -100,7 +100,7 @@
 
 .gallery-lightbox-info-toggle:hover,
 .gallery-lightbox-info-toggle.active {
-    color: #ff6b9d;
+    color: var(--g-accent);
 }
 
 .gallery-lightbox-info-toggle svg {
@@ -124,7 +124,7 @@
     gap: 8px;
     padding: 14px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    color: #ff6b9d;
+    color: var(--g-accent);
     font-size: 14px;
     font-weight: 600;
     flex-shrink: 0;
@@ -180,7 +180,7 @@
     padding: 8px 12px;
     background: rgba(255, 255, 255, 0.04);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    color: #ff6b9d;
+    color: var(--g-accent);
     font-size: 12px;
     font-weight: 600;
 }
@@ -273,8 +273,8 @@
 
 .lightbox-info-copy-btn:hover {
     background: rgba(255, 255, 255, 0.06);
-    color: #ff6b9d;
-    border-color: #ff6b9d;
+    color: var(--g-accent);
+    border-color: var(--g-accent);
 }
 
 .lightbox-info-copy-btn svg {
@@ -386,7 +386,7 @@
 }
 
 .gallery-lightbox-edit-toolbar button.active {
-    background: #ff6b9d;
+    background: var(--g-accent);
     color: #fff;
 }
 
@@ -446,7 +446,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #ff6b9d;
+    background: var(--g-accent);
     cursor: pointer;
 }
 

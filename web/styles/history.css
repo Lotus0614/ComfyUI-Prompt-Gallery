@@ -4,10 +4,10 @@
   bottom: 16px;
   right: 16px;
   padding: 10px 16px;
-  background: rgba(255, 107, 157, 0.9);
-  border: 2px solid #ffb6c1;
+  background: var(--g-history-btn-bg);
+  border: 2px solid var(--g-history-btn-border);
   border-radius: 12px;
-  color: white;
+  color: var(--g-active-text);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -21,9 +21,9 @@
 }
 
 .history-floating-btn:hover {
-  background: rgba(255, 90, 141, 1);
+  background: var(--g-history-btn-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.4);
+  box-shadow: 0 4px 16px var(--g-history-btn-shadow);
 }
 
 /* ============ ImageGroupView 整体布局 ============ */
@@ -66,30 +66,30 @@
   justify-content: space-between;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  color: #666;
+  background: var(--g-bg-elevated);
+  color: var(--g-text-secondary);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
   line-height: 1;
   gap: 8px;
-  box-shadow: 0 1px 3px rgba(255, 107, 157, 0.08);
+  box-shadow: 0 1px 3px var(--g-shadow-light);
 }
 
 .date-sidebar-item:hover {
-  border-color: #ffb6c1;
-  background: #fff5f8;
-  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.15);
+  border-color: var(--g-accent);
+  background: var(--g-hover-bg);
+  box-shadow: 0 2px 8px var(--g-shadow);
   transform: translateY(-1px);
 }
 
 .date-sidebar-item.active {
-  border-color: #ff6b9d;
-  background: #ff6b9d;
-  color: white;
-  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
+  border-color: var(--g-accent);
+  background: var(--g-accent);
+  color: var(--g-active-text);
+  box-shadow: 0 4px 12px var(--g-float-btn-shadow);
   transform: translateY(-2px);
 }
 
@@ -135,14 +135,14 @@
   width: 12px;
   flex-shrink: 0;
   cursor: col-resize;
-  background: #fff5f8;
+  background: var(--g-bg-input);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.15s;
-  border-left: 1px solid #ffe0eb;
-  border-right: 1px solid #ffe0eb;
+  border-left: 1px solid var(--g-border);
+  border-right: 1px solid var(--g-border);
 }
 
 /* 三竖点纹理 — 默认可见 */
@@ -153,8 +153,8 @@
   border-radius: 2px;
   background: repeating-linear-gradient(
     to bottom,
-    #ffb6c1 0px,
-    #ffb6c1 2px,
+    var(--g-border) 0px,
+    var(--g-border) 2px,
     transparent 2px,
     transparent 5px
   );
@@ -162,15 +162,15 @@
 }
 
 .group-sidebar-resize-handle:hover {
-  background: #ffeff3;
+  background: var(--g-hover-bg);
 }
 
 .group-sidebar-resize-handle:hover::before {
   height: 28px;
   background: repeating-linear-gradient(
     to bottom,
-    #ff6b9d 0px,
-    #ff6b9d 3px,
+    var(--g-accent) 0px,
+    var(--g-accent) 3px,
     transparent 3px,
     transparent 6px
   );
@@ -183,12 +183,12 @@
 .group-sidebar-select {
   width: 100%;
   height: 30px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 8px;
   padding: 0 8px;
   font-size: 12px;
-  color: #333;
-  background: #fff;
+  color: var(--g-text);
+  background: var(--g-bg-elevated);
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -200,7 +200,7 @@
 }
 
 .group-sidebar-select:focus {
-  border-color: #ff6b9d;
+  border-color: var(--g-accent);
 }
 
 .group-sidebar-search {
@@ -213,30 +213,30 @@
   left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  color: #ccc;
+  color: var(--g-text-hint);
   pointer-events: none;
 }
 
 .group-sidebar-search-input {
   width: 100%;
   height: 30px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 8px;
   padding: 0 8px 0 26px;
   font-size: 12px;
-  color: #333;
-  background: #fff;
+  color: var(--g-text);
+  background: var(--g-bg-elevated);
   outline: none;
   transition: border-color 0.2s;
   box-sizing: border-box;
 }
 
 .group-sidebar-search-input::placeholder {
-  color: #ccc;
+  color: var(--g-text-hint);
 }
 
 .group-sidebar-search-input:focus {
-  border-color: #ff6b9d;
+  border-color: var(--g-accent);
 }
 
 .group-sidebar-list {
@@ -255,30 +255,30 @@
   justify-content: space-between;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ffe0eb;
+  border: 1px solid var(--g-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  color: #666;
+  background: var(--g-bg-elevated);
+  color: var(--g-text-secondary);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
   line-height: 1;
   gap: 8px;
-  box-shadow: 0 1px 3px rgba(255, 107, 157, 0.08);
+  box-shadow: 0 1px 3px var(--g-shadow-light);
 }
 
 .group-sidebar-item:hover {
-  border-color: #ffb6c1;
-  background: #fff5f8;
-  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.15);
+  border-color: var(--g-accent);
+  background: var(--g-hover-bg);
+  box-shadow: 0 2px 8px var(--g-shadow);
   transform: translateY(-1px);
 }
 
 .group-sidebar-item.active {
-  border-color: #ff6b9d;
-  background: #ff6b9d;
-  color: white;
-  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.35);
+  border-color: var(--g-accent);
+  background: var(--g-accent);
+  color: var(--g-active-text);
+  box-shadow: 0 4px 12px var(--g-float-btn-shadow);
   transform: translateY(-2px);
 }
 
@@ -319,28 +319,28 @@
   gap: 12px;
   padding: 8px 12px;
   margin-bottom: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--g-bg-elevated);
   border-radius: 8px;
-  border-left: 4px solid #ff6b9d;
+  border-left: 4px solid var(--g-accent);
 }
 
 .date-group-label {
   font-size: 14px;
   font-weight: 700;
-  color: #ff6b9d;
+  color: var(--g-accent);
 }
 
 .date-group-count {
   font-size: 12px;
-  color: #999;
-  background: #fff5f8;
+  color: var(--g-text-muted);
+  background: var(--g-accent-light);
   padding: 2px 8px;
   border-radius: 8px;
 }
 
 .date-group-empty {
   text-align: center;
-  color: #999;
+  color: var(--g-text-muted);
   padding: 20px;
 }
 
@@ -351,7 +351,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #ff6b9d;
+  color: var(--g-accent);
   font-size: 16px;
   font-weight: 600;
   gap: 12px;
@@ -363,14 +363,14 @@
   justify-content: center;
   height: 100%;
   font-size: 18px;
-  color: #888;
+  color: var(--g-text-muted);
 }
 
 /* ============ 历史视图标题（GalleryFilterBar 用） ============ */
 .gallery-history-title {
   font-size: 15px;
   font-weight: 700;
-  color: #ff6b9d;
+  color: var(--g-accent);
   padding: 0 8px;
 }
 
@@ -381,7 +381,7 @@
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  color: #ff6b9d;
+  color: var(--g-accent);
   font-size: 13px;
   font-weight: 500;
 }
@@ -395,7 +395,7 @@
 
 .image-group-load-hint {
   text-align: center;
-  color: #999;
+  color: var(--g-text-muted);
   font-size: 12px;
   padding: 8px;
   opacity: 0.6;

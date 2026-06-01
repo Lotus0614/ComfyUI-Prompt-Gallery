@@ -301,11 +301,11 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
     h('div', {
       style: {
         padding: '8px 12px',
-        background: '#fff5f8',
-        border: '1px solid #ffe0e8',
+        background: 'var(--g-bg-input)',
+        border: '1px solid var(--g-border)',
         borderRadius: '6px',
         fontSize: '12px',
-        color: '#666',
+        color: 'var(--g-text-secondary)',
         marginBottom: '14px',
         whiteSpace: 'pre-line',
         lineHeight: '1.6',
@@ -323,9 +323,9 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
       }, [
         h('button', {
           style: {
-            border: '1px solid #ffb6c1',
-            background: '#fff5f8',
-            color: '#ff6b9d',
+            border: '1px solid var(--g-border)',
+            background: 'var(--g-bg-input)',
+            color: 'var(--g-accent)',
             borderRadius: '4px',
             padding: '3px 8px',
             fontSize: '11px',
@@ -386,9 +386,9 @@ export function CustomFilterEditDialog({ isOpen, onClose, onSave, editItem }) {
           borderRadius: '6px',
           fontSize: '12px',
           marginTop: '8px',
-          background: testResult.error ? '#fff0f0' : '#f0fff0',
-          border: `1px solid ${testResult.error ? '#ffcccc' : '#ccffcc'}`,
-          color: testResult.error ? '#cc0000' : '#006600',
+          background: testResult.error ? 'rgba(244, 67, 54, 0.1)' : 'rgba(76, 175, 80, 0.1)',
+          border: `1px solid ${testResult.error ? 'var(--g-error)' : 'var(--g-success)'}`,
+          color: testResult.error ? 'var(--g-error)' : 'var(--g-success)',
         },
       }, testResult.error
         ? `❌ 错误: ${testResult.error}`
