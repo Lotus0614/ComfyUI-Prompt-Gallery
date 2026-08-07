@@ -5,6 +5,7 @@ from aiohttp import web
 import server
 from ..storage import get_storage
 from ._delete_utils import delete_category_cascade, delete_images_completely_batch
+from ._utils import require_local_request
 
 
 # ============ Batch Operations API ============
@@ -20,6 +21,8 @@ async def batch_delete(request):
       "images": [{"path": "prompt_gallery/xxx.png"}]
     }
     """
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         data = await request.json()
         category_ids = data.get("categories", [])
@@ -123,6 +126,8 @@ async def batch_move(request):
       "prompts": [{"categoryId": "xxx", "value": "yyy", "newCategoryId": "zzz"}]
     }
     """
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         data = await request.json()
         categories = data.get("categories", [])
@@ -245,6 +250,8 @@ async def batch_copy(request):
       "prompts": [{"categoryId": "xxx", "value": "yyy", "targetCategoryId": "zzz"}]
     }
     """
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         data = await request.json()
         prompts = data.get("prompts", [])
