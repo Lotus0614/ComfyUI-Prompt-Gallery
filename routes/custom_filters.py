@@ -5,6 +5,7 @@ from aiohttp import web
 import server
 from ..storage import get_custom_filter_storage, get_storage
 from ._sandbox import compile_filter as _compile_filter, compile_extract as _compile_extract
+from ._utils import require_local_request
 
 
 @server.PromptServer.instance.routes.get("/prompt_gallery/custom_filters")
@@ -19,6 +20,8 @@ async def get_custom_filters(request):
 
 @server.PromptServer.instance.routes.post("/prompt_gallery/custom_filters")
 async def create_custom_filter(request):
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         data = await request.json()
         name = data.get("name", "").strip()
@@ -52,6 +55,8 @@ async def create_custom_filter(request):
 
 @server.PromptServer.instance.routes.put("/prompt_gallery/custom_filters/{id}")
 async def update_custom_filter(request):
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         filter_id = request.match_info["id"]
         data = await request.json()
@@ -90,6 +95,8 @@ async def update_custom_filter(request):
 
 @server.PromptServer.instance.routes.delete("/prompt_gallery/custom_filters/{id}")
 async def delete_custom_filter(request):
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         filter_id = request.match_info["id"]
         storage = get_custom_filter_storage()
@@ -108,6 +115,8 @@ async def delete_custom_filter(request):
 @server.PromptServer.instance.routes.post("/prompt_gallery/custom_filters/{id}/test")
 async def test_custom_filter(request):
     """测试筛查函数：执行 filter_code，返回匹配数量和总数量"""
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         filter_id = request.match_info["id"]
         data = await request.json()
@@ -149,6 +158,8 @@ async def test_custom_filter(request):
 @server.PromptServer.instance.routes.post("/prompt_gallery/custom_filters/{id}/extract")
 async def extract_filter_options(request):
     """执行 extract_code，提取所有不重复的选项值"""
+    if not require_local_request(request):
+        return web.json_response({"error": "Forbidden"}, status=403)
     try:
         filter_id = request.match_info["id"]
 

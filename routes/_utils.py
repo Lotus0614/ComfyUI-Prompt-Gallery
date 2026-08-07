@@ -35,3 +35,11 @@ def is_safe_filename(name: str) -> bool:
     if name in (".", ""):
         return False
     return Path(name).name == name
+
+
+def require_local_request(request) -> bool:
+    """Returns True only if the request originates from a loopback address."""
+    peername = request.transport.get_extra_info("peername")
+    if not peername:
+        return False
+    return peername[0] in ("127.0.0.1", "::1")
