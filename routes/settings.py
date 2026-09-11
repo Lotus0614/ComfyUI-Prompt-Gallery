@@ -5,7 +5,6 @@
 """
 import json
 import re
-import shutil
 from pathlib import Path
 from aiohttp import web
 import server
@@ -17,7 +16,7 @@ from ..storage._config import (
     set_max_backups,
 )
 from ..storage._resolve import clear_all_caches, _resolve_storage_dir, get_storage
-from ..storage.backup import BackupManager
+from ..storage.backup import BackupManager, _USER_BACKUP_RE
 from ..storage.migration import (
     migrate_combinations_to_prompts,
     migrate_prompt_covers_from_prompt_string,
@@ -224,7 +223,8 @@ async def apply_backup(request):
         storage_dir = _resolve_storage_dir()
         backup_dir = storage_dir / name
 
-        if not backup_dir.is_dir() or not name.startswith("backup_"):
+        # 只允许用户创建的完整快照，拒绝迁移过程产生的 backup_* 目录。
+        if not backup_dir.is_dir() or not _USER_BACKUP_RE.match(name):
             return web.json_response({"error": "备份不存在"}, status=404)
 
         # 二次校验：备份目录必须直接位于存储目录之下
@@ -234,12 +234,11 @@ async def apply_backup(request):
         # 先创建安全备份
         max_bk = get_max_backups(storage_dir)
         bm = BackupManager(storage_dir, max_backups=max_bk)
-        safety = bm.create_backup()
+        # 创建安全备份时保护用户选中的源备份，避免达到上限时被清理掉。
+        safety = bm.create_backup(protected_names={name})
 
-        # 还原备份文件
-        for f in backup_dir.iterdir():
-            if f.is_file():
-                shutil.copy2(f, storage_dir / f.name)
+        # 按 manifest 精确恢复；新备份中不存在的旧分片会被清理。
+        bm.restore_backup(backup_dir)
 
         # 旧备份可能重新带回组合文件，恢复后立即转成 Prompt，无需等待重启。
         migration_warning = None

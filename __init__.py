@@ -3,7 +3,13 @@ Prompt Gallery - ComfyUI Custom Node
 在 ComfyUI 中展示Prompt图库管理界面
 """
 
-from .nodes import PromptGallery, PromptSelector, SaveToGallery, QuickSavePrompt, PromptCategoryReader
+from .nodes import (
+    PromptGallery, PromptSelector, SaveToGallery, QuickSavePrompt,
+    PromptCategoryReader, start_save_completion_worker,
+)
+
+# 加载插件时重放上次进程未完成的 SaveToGallery 索引任务。
+start_save_completion_worker()
 
 NODE_CLASS_MAPPINGS = {
     "PromptGallery": PromptGallery,

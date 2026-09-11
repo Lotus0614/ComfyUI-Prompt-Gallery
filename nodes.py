@@ -15,8 +15,12 @@ import json
 import re
 import random
 import threading
+import queue
+import time
 from pathlib import Path
 from .storage import get_storage
+from .storage._config import write_json_atomic
+from .storage._resolve import _resolve_storage_dir
 from .storage._prompt_reader import (
     filter_prompts_by_search,
     format_prompt_record,
@@ -36,6 +40,126 @@ _prompt_match_names = None           # frozenset 指纹
 _prompt_match_lookup = None          # name/alias -> [prompt, ...]
 _prompt_match_lock = threading.Lock()
 _quick_save_prompt_lock = threading.Lock()
+
+
+class _SaveCompletionQueue:
+    """持久化 SaveToGallery 后处理任务，并由单一 worker 串行执行。"""
+
+    def __init__(self):
+        self._queue = queue.Queue()
+        self._lock = threading.RLock()
+        self._started = False
+        self._loaded_dirs = set()
+
+    @staticmethod
+    def _outbox_path(storage_dir):
+        return Path(storage_dir) / ".pending_save_tasks.json"
+
+    def _read_tasks(self, storage_dir):
+        path = self._outbox_path(storage_dir)
+        if not path.exists():
+            return []
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            tasks = data.get("tasks", []) if isinstance(data, dict) else []
+            return [task for task in tasks if isinstance(task, dict) and task.get("id")]
+        except Exception as e:
+            # 不覆盖损坏的 outbox，避免后台任务记录被静默清空。
+            print(f"[SaveToGallery] 读取待处理任务失败，保留原文件: {e}")
+            return None
+
+    def _write_tasks(self, storage_dir, tasks):
+        write_json_atomic(self._outbox_path(storage_dir), {"tasks": tasks})
+
+    def _remove_task(self, storage_dir, task_id):
+        with self._lock:
+            tasks = self._read_tasks(storage_dir)
+            if tasks is None:
+                raise RuntimeError("待处理任务文件损坏，拒绝覆盖")
+            self._write_tasks(storage_dir, [t for t in tasks if t.get("id") != task_id])
+
+    def _mark_retry(self, storage_dir, task):
+        with self._lock:
+            tasks = self._read_tasks(storage_dir)
+            if tasks is None:
+                raise RuntimeError("待处理任务文件损坏，拒绝覆盖")
+            for current in tasks:
+                if current.get("id") == task.get("id"):
+                    current["attempts"] = int(current.get("attempts", 0)) + 1
+                    task["attempts"] = current["attempts"]
+                    break
+            self._write_tasks(storage_dir, tasks)
+
+    def _worker(self):
+        while True:
+            storage_dir, task = self._queue.get()
+            try:
+                SaveToGallery._complete_save_task(task)
+                self._remove_task(storage_dir, task["id"])
+            except Exception as e:
+                attempts = int(task.get("attempts", 0))
+                try:
+                    self._mark_retry(storage_dir, task)
+                except Exception as persist_error:
+                    print(f"[SaveToGallery] 无法更新任务状态，保留原 outbox: {persist_error}")
+                print(f"[SaveToGallery] 后台保存失败（attempt={attempts + 1}）: {e}")
+                if attempts < 2:
+                    time.sleep(min(2 ** attempts, 5))
+                    self._queue.put((storage_dir, task))
+                else:
+                    print("[SaveToGallery] 任务已保留在 pending outbox，后续启动时将重试")
+            finally:
+                self._queue.task_done()
+
+    def _ensure_started(self, storage_dir):
+        with self._lock:
+            if not self._started:
+                self._started = True
+                thread = threading.Thread(target=self._worker, name="pg-save-worker", daemon=True)
+                thread.start()
+            storage_key = str(Path(storage_dir).resolve())
+            if storage_key in self._loaded_dirs:
+                return
+            tasks = self._read_tasks(storage_dir)
+            if tasks is None:
+                return
+            self._loaded_dirs.add(storage_key)
+            for task in tasks:
+                self._queue.put((storage_dir, task))
+
+    def enqueue(self, storage_dir, pending_mappings, prompt_string, first_saved_image_path):
+        task = {
+            "id": __import__('uuid').uuid4().hex,
+            "pending_mappings": pending_mappings,
+            "prompt_string": prompt_string,
+            "first_saved_image_path": first_saved_image_path,
+            "attempts": 0,
+        }
+        with self._lock:
+            # 先启动并加载已有 outbox，再追加当前任务，避免当前任务被启动扫描和
+            # 显式入队各处理一次。
+            self._ensure_started(storage_dir)
+            tasks = self._read_tasks(storage_dir)
+            if tasks is None:
+                raise RuntimeError("待处理任务文件损坏，拒绝覆盖")
+            tasks.append(task)
+            self._write_tasks(storage_dir, tasks)
+            self._queue.put((storage_dir, task))
+
+
+_save_completion_queue = _SaveCompletionQueue()
+
+
+def start_save_completion_worker():
+    """插件加载时启动 worker，并重放上次进程遗留的 pending 任务。"""
+    try:
+        # 只解析存储目录，不在插件导入阶段触发全量迁移；真正处理任务时
+        # 再通过 get_storage() 完成正常初始化。
+        _save_completion_queue._ensure_started(_resolve_storage_dir())
+    except Exception as e:
+        # ComfyUI 加载阶段依赖尚未就绪时，首次保存会再次尝试启动。
+        print(f"[SaveToGallery] 启动后台 worker 延后: {e}")
 
 
 class PromptGallery:
@@ -383,46 +507,47 @@ class SaveToGallery:
         return result
 
     @classmethod
-    def _complete_save_async(cls, pending_mappings, prompt_string, first_saved_image_path):
-        """后台写入图片映射，并完成 Prompt 匹配和缺失封面补齐。"""
-        try:
-            prompt_storage, mapping_storage, _ = get_storage()
+    def _complete_save_task(cls, task):
+        """执行一个持久化任务；异常向 worker 抛出以触发重试。"""
+        pending_mappings = task.get("pending_mappings") or []
+        prompt_string = task.get("prompt_string", "")
+        first_saved_image_path = task.get("first_saved_image_path")
+        prompt_storage, mapping_storage, _ = get_storage()
 
-            if pending_mappings:
-                mapping_storage.add_mappings_batch(pending_mappings)
+        if pending_mappings:
+            mapping_storage.add_mappings_batch(pending_mappings)
 
-            if not first_saved_image_path:
-                return
+        if not first_saved_image_path:
+            return
 
-            matched = cls._match_prompts_from_prompt(prompt_string)
-            updates_by_key = {}
-            for p in matched:
-                value = p.get("value", "")
-                if not value:
-                    continue
+        matched = cls._match_prompts_from_prompt(prompt_string)
+        updates_by_key = {}
+        for p in matched:
+            value = p.get("value", "")
+            if value:
                 updates_by_key[(p.get("categoryId", "root"), value)] = first_saved_image_path
 
-            if not updates_by_key:
-                print("[SaveToGallery] 后台匹配未找到已知 Prompt")
-                return
+        if not updates_by_key:
+            print("[SaveToGallery] 后台匹配未找到已知 Prompt")
+            return
 
-            updated = prompt_storage.set_cover_batch_by_key(updates_by_key)
-
-            print(f"[SaveToGallery] 后台保存完成: mappings={len(pending_mappings)}, prompts={len(updates_by_key)}, covers={updated}")
-        except Exception as e:
-            print(f"[SaveToGallery] 后台保存失败: {e}")
-            import traceback
-            traceback.print_exc()
+        updated = prompt_storage.set_cover_batch_by_key(updates_by_key)
+        print(f"[SaveToGallery] 后台保存完成: mappings={len(pending_mappings)}, prompts={len(updates_by_key)}, covers={updated}")
 
     @classmethod
     def _schedule_save_completion(cls, pending_mappings, prompt_string, first_saved_image_path):
-        import threading
-        thread = threading.Thread(
-            target=cls._complete_save_async,
-            args=(pending_mappings, prompt_string, first_saved_image_path),
-            daemon=True,
-        )
-        thread.start()
+        try:
+            _, mapping_storage, _ = get_storage()
+            _save_completion_queue.enqueue(
+                mapping_storage.storage_dir,
+                pending_mappings,
+                prompt_string,
+                first_saved_image_path,
+            )
+        except Exception as e:
+            # 图片已成功落盘时不让索引故障导致整个 ComfyUI 工作流失败；
+            # 记录错误供用户后续恢复。
+            print(f"[SaveToGallery] 创建后台索引任务失败: {e}")
 
     @classmethod
     def INPUT_TYPES(cls):

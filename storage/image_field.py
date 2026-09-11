@@ -214,6 +214,7 @@ class ImageFieldStorage:
         self.fields_file = storage_dir / "image_fields.json"
         self._lock = threading.Lock()
         self._cache = None
+        self._load_error = None
         self._ensure_file()
 
     def _ensure_file(self):
@@ -223,6 +224,9 @@ class ImageFieldStorage:
         else:
             # 确保内置字段存在（合并缺失的 builtin 字段，同步名称和 extractCode）
             data = self._read_data()
+            if self._load_error is not None:
+                print(f"[ImageFieldStorage] 文件损坏，跳过自动覆盖: {self.fields_file}")
+                return
             original_count = len(data.get("fields", []))
             data["fields"] = [
                 f for f in data.get("fields", [])
@@ -254,12 +258,22 @@ class ImageFieldStorage:
             return self._cache
         try:
             with open(self.fields_file, 'r', encoding='utf-8') as f:
-                self._cache = json.load(f)
-        except Exception:
-            self._cache = {"fields": list(_BUILTIN_FIELDS)}
+                data = json.load(f)
+            if not isinstance(data, dict) or not isinstance(data.get("fields", []), list):
+                raise ValueError("根节点或 fields 字段类型无效")
+            self._cache = data
+            self._load_error = None
+        except Exception as e:
+            self._load_error = e
+            # 仅提供内存中的内置字段，绝不把默认数据写回原损坏文件。
+            self._cache = {"fields": [dict(item) for item in _BUILTIN_FIELDS]}
         return self._cache
 
     def _write_data(self, data: dict):
+        if self._load_error is not None:
+            raise RuntimeError(
+                f"拒绝覆盖损坏的图片字段文件 {self.fields_file}，请先修复或移走该文件"
+            ) from self._load_error
         write_json_atomic(self.fields_file, data)
         self._cache = None
 

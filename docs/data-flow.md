@@ -368,6 +368,7 @@ ZIP v1 和 v2 均以 `promptString` 作为图片关联来源。兼容旧包时�
 | `comfy_output*.images.json` | 仅历史视图使用的 Output 导入索引 |
 | `image_fields.json` | 图片自定义字段 |
 | `custom_filters.json` | 自定义筛选器 |
+| `.pending_save_tasks.json` | SaveToGallery 待处理索引任务 |
 
 `SplitJsonStorage` 的行为：
 
@@ -377,6 +378,9 @@ ZIP v1 和 v2 均以 `promptString` 作为图片关联来源。兼容旧包时�
 - 批量操作尽量在一次锁和一次文件写入中完成。
 - `_source_file` 只用于决定回写分片，不会持久化到 JSON。
 - `comfy_output` 分片从普通 glob 读取中排除，避免大文件常驻缓存。
+- SaveToGallery 后处理任务先写入 `.pending_save_tasks.json`，由单一后台 worker
+  执行；成功后移除，失败任务会保留并在后续启动时重试。
+- 备份包含全部存储文件及 manifest；恢复新格式备份时会删除快照中不存在的旧分片。
 
 ## 十、关键不变量
 

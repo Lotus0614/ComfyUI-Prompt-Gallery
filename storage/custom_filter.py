@@ -47,6 +47,7 @@ class CustomFilterStorage:
         self.filters_file = storage_dir / "custom_filters.json"
         self._lock = threading.Lock()
         self._cache = None
+        self._load_error = None
         self._ensure_file()
 
     def _ensure_file(self):
@@ -56,6 +57,9 @@ class CustomFilterStorage:
         else:
             # 确保存在内置筛选项，同步名称/placeholder/filterCode
             data = self._read_data()
+            if self._load_error is not None:
+                print(f"[CustomFilterStorage] 文件损坏，跳过自动覆盖: {self.filters_file}")
+                return
             existing_map = {f["id"]: f for f in data.get("filters", [])}
             changed = False
             for bf in _BUILTIN_FILTERS:
@@ -76,12 +80,22 @@ class CustomFilterStorage:
             return self._cache
         try:
             with open(self.filters_file, 'r', encoding='utf-8') as f:
-                self._cache = json.load(f)
-        except Exception:
-            self._cache = {"filters": []}
+                data = json.load(f)
+            if not isinstance(data, dict) or not isinstance(data.get("filters", []), list):
+                raise ValueError("根节点或 filters 字段类型无效")
+            self._cache = data
+            self._load_error = None
+        except Exception as e:
+            self._load_error = e
+            # 仅提供内存中的内置项，绝不把默认数据写回原损坏文件。
+            self._cache = {"filters": [dict(item) for item in _BUILTIN_FILTERS]}
         return self._cache
 
     def _write_data(self, data: dict):
+        if self._load_error is not None:
+            raise RuntimeError(
+                f"拒绝覆盖损坏的筛选器文件 {self.filters_file}，请先修复或移走该文件"
+            ) from self._load_error
         write_json_atomic(self.filters_file, data)
         self._cache = None
 

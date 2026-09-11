@@ -102,12 +102,18 @@ class ImageMappingStorage(SplitJsonStorage):
                 with open(target_path, "r", encoding="utf-8") as fh:
                     data = json.load(fh)
                 existing = data.get(self.item_key, [])
+            existing_paths = {
+                m.get("imagePath") for m in existing if m.get("imagePath")
+            }
 
             count = 0
             for item in items:
+                image_path = item["image_path"]
+                if image_path in existing_paths:
+                    continue
                 mapping = {
                     "type": item.get("mapping_type", "local"),
-                    "imagePath": item["image_path"],
+                    "imagePath": image_path,
                     "fileInfo": item.get("file_info") or {},
                 }
                 prompt_string = item.get("prompt_string") or ", ".join(item.get("prompt_values") or [])
@@ -117,6 +123,7 @@ class ImageMappingStorage(SplitJsonStorage):
                     gp = item["generate_prompt"]
                     mapping["generatePrompt"] = json.dumps(gp, ensure_ascii=False) if isinstance(gp, (dict, list)) else gp
                 existing.append(mapping)
+                existing_paths.add(image_path)
                 count += 1
 
             write_json_atomic(target_path, {self.item_key: existing})
@@ -175,11 +182,17 @@ class ImageMappingStorage(SplitJsonStorage):
         print(f"[ImageMapping] 批量导入 {len(items)} 个映射...")
         with self._lock:
             data = self._read_data()
+            existing_paths = {
+                m.get("imagePath") for m in data.get("mappings", []) if m.get("imagePath")
+            }
             count = 0
             for item in items:
+                image_path = item["image_path"]
+                if image_path in existing_paths:
+                    continue
                 mapping = {
                     "type": item.get("mapping_type", "local"),
-                    "imagePath": item["image_path"],
+                    "imagePath": image_path,
                     "fileInfo": item.get("file_info") or {},
                 }
                 prompt_string = item.get("prompt_string") or ", ".join(item.get("prompt_values") or [])
@@ -191,6 +204,7 @@ class ImageMappingStorage(SplitJsonStorage):
                 if target_file:
                     mapping["_source_file"] = target_file
                 data["mappings"].append(mapping)
+                existing_paths.add(image_path)
                 count += 1
             self._write_data(data)
             print(f"[ImageMapping] 映射导入完成: {count} 个")
@@ -204,11 +218,18 @@ class ImageMappingStorage(SplitJsonStorage):
         """
         with self._lock:
             data = self._read_data()
+            existing_paths = {
+                m.get("imagePath") for m in data.get("mappings", []) if m.get("imagePath")
+            }
             count = 0
             for item in items:
+                image_path = item["image_path"]
+                # 后台任务重试必须幂等，避免同一图片产生重复索引。
+                if image_path in existing_paths:
+                    continue
                 mapping = {
                     "type": "local",
-                    "imagePath": item["image_path"],
+                    "imagePath": image_path,
                     "fileInfo": item.get("file_info") or {},
                 }
                 prompt_string = item.get("prompt_string") or ", ".join(item.get("prompt_values") or [])
@@ -218,6 +239,7 @@ class ImageMappingStorage(SplitJsonStorage):
                     gp = item["generate_prompt"]
                     mapping["generatePrompt"] = json.dumps(gp, ensure_ascii=False) if isinstance(gp, (dict, list)) else gp
                 data["mappings"].append(mapping)
+                existing_paths.add(image_path)
                 count += 1
             self._write_data(data)
             return count

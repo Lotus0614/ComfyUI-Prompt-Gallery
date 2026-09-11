@@ -1,5 +1,6 @@
 import json
 import threading
+import hashlib
 from pathlib import Path
 from typing import Dict, List
 
@@ -19,6 +20,8 @@ class SplitJsonStorage:
         self._cache = None
         self._loaded_sources = set()
         self._failed_sources = set()
+        # source path -> 内容指纹；用于写入时跳过未发生变化的分片。
+        self._source_fingerprints = {}
 
     @property
     def primary_file(self) -> Path:
@@ -28,6 +31,18 @@ class SplitJsonStorage:
         self._cache = None
         self._loaded_sources = set()
         self._failed_sources = set()
+        self._source_fingerprints = {}
+
+    def _fingerprint_items(self, items: list) -> str:
+        """计算不含内部路由字段的稳定内容指纹。"""
+        normalized = [
+            {k: v for k, v in item.items() if k != "_source_file"}
+            for item in items
+        ]
+        encoded = json.dumps(
+            normalized, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
 
     def _glob_source_files(self) -> List[Path]:
         disabled = get_disabled_files(self.storage_dir)
@@ -59,12 +74,15 @@ class SplitJsonStorage:
         merged_items = []
         loaded_sources = set()
         failed_sources = set()
+        source_fingerprints = {}
         for source_file in self._glob_source_files():
             try:
                 with open(source_file, "r", encoding="utf-8") as f:
                     file_data = json.load(f)
                 loaded_sources.add(str(source_file))
-                for item in file_data.get(self.item_key, []):
+                source_items = file_data.get(self.item_key, [])
+                source_fingerprints[str(source_file)] = self._fingerprint_items(source_items)
+                for item in source_items:
                     item["_source_file"] = str(source_file)
                     merged_items.append(item)
             except Exception as e:
@@ -73,6 +91,7 @@ class SplitJsonStorage:
 
         self._loaded_sources = loaded_sources
         self._failed_sources = failed_sources
+        self._source_fingerprints = source_fingerprints
         self._cache = {self.item_key: merged_items}
         return self._cache
 
@@ -111,6 +130,10 @@ class SplitJsonStorage:
 
             empty_shards = []
             for file_path_str, items in groups.items():
+                fingerprint = self._fingerprint_items(items)
+                # 未变化的来源文件无需重复序列化/写盘，显著降低分片写放大。
+                if self._source_fingerprints.get(file_path_str) == fingerprint:
+                    continue
                 if file_path_str != main_key and not items:
                     empty_shards.append(Path(file_path_str))
                     continue
