@@ -98,6 +98,7 @@ export function GalleryGrid() {
           onMove: () => ctx.openMoveDialog(prompt, 'prompt'),
           onCopy: () => ctx.openCopyDialog(prompt, 'prompt'),
           onExport: () => ctx.handleExportPrompt(prompt),
+          onOpenDetails: ctx.openPromptDetails,
           onTogglePinned: ctx.handleTogglePinned,
           selectionMode: cardSelectionMode,
           selected: ctx.isSelectorMode
@@ -129,6 +130,7 @@ export function GalleryGrid() {
       ctx.openCopyDialog,
       ctx.openDeleteConfirm,
       ctx.openEditDialog,
+      ctx.openPromptDetails,
       ctx.openMoveDialog,
       ctx.selectionMode,
       ctx.selectedItems,

@@ -136,6 +136,7 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
 
   // ============ 对话框状态 ============
   const [showAddPromptDialog, setShowAddPromptDialog] = useState(false);
+  const [promptDetailsPrompt, setPromptDetailsPrompt] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [promptToDelete, setPromptToDelete] = useState(null);
   const [editModePrompt, setEditModePrompt] = useState(null);
@@ -166,6 +167,14 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
   // ============ 导出对话框状态 ============
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportPayload, setExportPayload] = useState(null);
+
+  const openPromptDetails = useCallback((prompt) => {
+    setPromptDetailsPrompt(prompt);
+  }, []);
+
+  const closePromptDetails = useCallback(() => {
+    setPromptDetailsPrompt(null);
+  }, []);
 
   // ============ Hooks ============
 
@@ -823,6 +832,9 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
       // Dialog state
       showAddPromptDialog,
       setShowAddPromptDialog,
+      promptDetailsPrompt,
+      openPromptDetails,
+      closePromptDetails,
       editModePrompt,
       setEditModePrompt,
       openAddDialog,
@@ -910,6 +922,9 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
       itemOps.copyItem,
       itemOps.copyItemType,
       showAddPromptDialog,
+      promptDetailsPrompt,
+      openPromptDetails,
+      closePromptDetails,
       editModePrompt,
       showDeleteConfirm,
       promptToDelete,

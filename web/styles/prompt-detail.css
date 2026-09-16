@@ -1,4 +1,89 @@
 /* ============ Prompt详情模态框样式 ============ */
+.prompt-info-dialog .gallery-dialog-content {
+  width: min(90%, 880px);
+  height: min(80vh, 640px);
+}
+
+.prompt-info-content {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(300px, 1fr);
+  gap: 28px;
+  min-height: 100%;
+  align-items: center;
+}
+
+.prompt-info-cover {
+  min-height: 250px;
+  max-height: 510px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--g-radius-lg);
+  background: var(--g-image-placeholder);
+}
+
+.prompt-info-cover img {
+  display: block;
+  max-width: 100%;
+  max-height: 510px;
+  object-fit: contain;
+}
+
+.prompt-info-cover-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--g-text-muted);
+}
+
+.prompt-info-fields {
+  margin: 0;
+  min-width: 0;
+}
+
+.prompt-info-fields dt {
+  margin-top: 20px;
+  color: var(--g-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.prompt-info-fields dt:first-child {
+  margin-top: 0;
+}
+
+.prompt-info-fields dd {
+  margin: 6px 0 0;
+  color: var(--g-text);
+  font-size: 15px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .prompt-info-dialog .gallery-dialog-content {
+    height: min(84vh, 720px);
+  }
+
+  .prompt-info-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .prompt-info-cover {
+    min-height: 170px;
+    max-height: 280px;
+  }
+
+  .prompt-info-cover img {
+    max-height: 280px;
+  }
+}
+
 .prompt-detail-overlay {
   position: fixed;
   top: 0;

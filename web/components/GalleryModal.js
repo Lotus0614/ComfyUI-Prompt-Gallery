@@ -24,6 +24,7 @@ import { GalleryFilterBar } from './GalleryFilterBar.js';
 import { PromptDetailView } from './PromptDetailView.js';
 import { HistoryView } from './HistoryView.js';
 import { SettingsDialog } from './SettingsDialog.js';
+import { PromptInfoDialog } from './PromptInfoDialog.js';
 
 import { Icon } from '../lib/icons.mjs';
 
@@ -168,6 +169,12 @@ function DialogLayer() {
       onClose: ctx.closeLightbox,
       onNavigate: ctx.handleLightboxNavigate,
       imageFields: ctx.imageFields,
+    }),
+
+    h(PromptInfoDialog, {
+      isOpen: !!ctx.promptDetailsPrompt,
+      prompt: ctx.promptDetailsPrompt,
+      onClose: ctx.closePromptDetails,
     }),
 
     h(AddPromptDialog, {
