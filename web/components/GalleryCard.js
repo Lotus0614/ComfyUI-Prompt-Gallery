@@ -22,6 +22,7 @@ export function GalleryCard({
   onMove,
   onCopy,
   onExport,
+  onOpenDetails,
   onTogglePinned,
   // 多选相关props
   selectionMode = false,
@@ -135,6 +136,20 @@ export function GalleryCard({
             { class: 'gallery-card-value-tag', title: value },
             value,
           ),
+        h(
+          'button',
+          {
+            class: 'gallery-card-detail-btn',
+            type: 'button',
+            title: '打开 Prompt 详情',
+            'aria-label': '打开 Prompt 详情',
+            onClick: (e) => {
+              e.stopPropagation();
+              onOpenDetails && onOpenDetails(prompt);
+            },
+          },
+          h(Icon, { name: 'info-circle', size: 15 }),
+        ),
       ]),
     ]);
   };
