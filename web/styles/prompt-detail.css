@@ -1,20 +1,30 @@
 /* ============ Prompt详情模态框样式 ============ */
 .prompt-info-dialog .gallery-dialog-content {
-  width: min(90%, 880px);
-  height: min(80vh, 640px);
+  width: min(94%, 1000px);
+  height: min(88vh, 820px);
+}
+
+/* 内容区撑满整个弹窗高度；body 本身不滚动，滚动交给右侧字段列 */
+.prompt-info-dialog .gallery-dialog-content .gallery-modal-body {
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+  padding: 10px 12px;
 }
 
 .prompt-info-content {
+  flex: 1;
   display: grid;
-  grid-template-columns: minmax(250px, 1fr) minmax(300px, 1fr);
-  gap: 28px;
-  min-height: 100%;
-  align-items: center;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 1fr);
+  gap: 14px;
+  min-height: 0;
+  min-width: 0;
+  align-items: stretch;
 }
 
 .prompt-info-cover {
-  min-height: 250px;
-  max-height: 510px;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,8 +35,10 @@
 
 .prompt-info-cover img {
   display: block;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  max-height: 510px;
+  max-height: 100%;
   object-fit: contain;
 }
 
@@ -38,13 +50,21 @@
   color: var(--g-text-muted);
 }
 
+/* 右侧字段列独立滚动 */
 .prompt-info-fields {
   margin: 0;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
 }
 
 .prompt-info-fields dt {
-  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
   color: var(--g-text-muted);
   font-size: 12px;
   font-weight: 600;
@@ -55,7 +75,7 @@
 }
 
 .prompt-info-fields dd {
-  margin: 6px 0 0;
+  margin: 5px 0 0;
   color: var(--g-text);
   font-size: 15px;
   line-height: 1.55;
@@ -63,24 +83,65 @@
   overflow-wrap: anywhere;
 }
 
+/* 一键复制 Prompt Value */
+.prompt-info-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--g-text-muted);
+  cursor: pointer;
+  opacity: 0.65;
+  transition: background var(--g-transition-fast), color var(--g-transition-fast), opacity var(--g-transition-fast);
+}
+
+.prompt-info-fields:hover .prompt-info-copy-btn,
+.prompt-info-copy-btn:focus-visible {
+  opacity: 1;
+}
+
+.prompt-info-copy-btn:hover {
+  background: var(--g-bg-hover);
+  color: var(--g-text);
+  outline: none;
+}
+
+.prompt-info-copy-btn.copied {
+  opacity: 1;
+  color: var(--g-accent);
+}
+
 @media (max-width: 600px) {
   .prompt-info-dialog .gallery-dialog-content {
-    height: min(84vh, 720px);
+    height: min(88vh, 760px);
+  }
+
+  /* 窄屏改为上下堆叠，交回给 body 统一滚动 */
+  .prompt-info-dialog .gallery-dialog-content .gallery-modal-body {
+    display: block;
+    overflow-y: auto;
   }
 
   .prompt-info-content {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: auto;
   }
 
   .prompt-info-cover {
-    min-height: 170px;
-    max-height: 280px;
+    flex: 0 0 auto;
+    height: 220px;
   }
 
-  .prompt-info-cover img {
-    max-height: 280px;
+  .prompt-info-fields {
+    overflow: visible;
+    padding-right: 0;
   }
 }
 

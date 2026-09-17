@@ -8,12 +8,36 @@ from pathlib import Path
 
 
 def write_json_atomic(file_path: Path, data: dict) -> None:
-    """原子写 JSON：先写同目录临时文件，再 os.replace，避免写一半损坏原文件。"""
+    """原子写 JSON：先写同目录临时文件，fsync 后再 os.replace，避免断电损坏原文件。"""
     file_path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = file_path.with_name(f".{file_path.name}.tmp")
     with open(temp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    os.replace(temp_path, file_path)
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except Exception:
+            pass
+    try:
+        os.replace(temp_path, file_path)
+    finally:
+        # 目录 fsync 确保重命名落盘；Windows 上打开目录可能失败，忽略即可
+        try:
+            dir_fd = os.open(str(file_path.parent), os.O_DIRECTORY)  # type: ignore[attr-defined]
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
+        except Exception:
+            try:
+                # Windows 回退：尝试以只读方式打开目录
+                dir_fd = os.open(str(file_path.parent), os.O_RDONLY)
+                try:
+                    os.fsync(dir_fd)
+                finally:
+                    os.close(dir_fd)
+            except Exception:
+                pass
 
 
 def get_storage_config_path(storage_dir: Path) -> Path:

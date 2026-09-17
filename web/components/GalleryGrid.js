@@ -160,7 +160,7 @@ export function GalleryGrid() {
       { class: 'gallery-hint' },
       ctx.isSelectorMode
         ? '单击选择或取消；双击分类可进入分类'
-        : '右键点击卡片可进行编辑、移动、删除等操作',
+        : '右键点击卡片可进行编辑、移动、删除等操作；Ctrl+点击卡片可打开 Prompt 详情',
     ),
   ]);
 }

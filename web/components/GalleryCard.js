@@ -53,6 +53,23 @@ export function GalleryCard({
 
   // ============ 事件处理 ============
 
+  /**
+   * 卡片点击：Ctrl/Cmd + 点击直接打开 Prompt 详情弹窗，否则进入详情视图
+   */
+  const handleCardClick = useCallback(
+    (e) => {
+      if (selectionMode) return;
+      if ((e.ctrlKey || e.metaKey) && onOpenDetails) {
+        e.preventDefault();
+        e.stopPropagation();
+        onOpenDetails(prompt);
+        return;
+      }
+      onImageClick && onImageClick(promptIndex);
+    },
+    [onImageClick, onOpenDetails, prompt, promptIndex, selectionMode],
+  );
+
   const handleCopy = () => {
     navigator.clipboard
       .writeText(prompt.value)
@@ -164,11 +181,7 @@ export function GalleryCard({
       'div',
       {
         class: 'gallery-image-cover',
-        onClick: (e) => {
-          if (!selectionMode) {
-            onImageClick && onImageClick(promptIndex);
-          }
-        },
+        onClick: handleCardClick,
       },
       [
         h('img', {
@@ -190,11 +203,7 @@ export function GalleryCard({
   const renderEmptyState = () => {
     return h('div', {
       class: 'gallery-card-empty',
-      onClick: (e) => {
-        if (!selectionMode) {
-          onImageClick && onImageClick(promptIndex);
-        }
-      },
+      onClick: handleCardClick,
     }, [
       h('div', { class: 'gallery-card-empty-icon' }, h(Icon, { name: 'palette', size: 32 })),
       h('div', { class: 'gallery-card-empty-text' }, '暂无图片'),

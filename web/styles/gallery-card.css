@@ -220,6 +220,8 @@
 }
 
 .gallery-card-bottom-bar {
+  /* 与 value 标签同高：font-size * line-height(1.4) + 上下 padding 3px * 2 */
+  --card-bottom-bar-height: calc(var(--card-value-tag-font, 11px) * 1.4 + 6px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -237,10 +239,10 @@
 
 .gallery-card-detail-btn {
   pointer-events: auto;
-  width: 25px;
-  height: 25px;
+  width: var(--card-bottom-bar-height);
+  height: var(--card-bottom-bar-height);
   padding: 0;
-  flex: 0 0 25px;
+  flex: 0 0 var(--card-bottom-bar-height);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -250,6 +252,12 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background var(--g-transition-fast), color var(--g-transition-fast);
+}
+
+/* 图标随卡片缩放同步变化，避免小尺寸下溢出 */
+.gallery-card-detail-btn svg {
+  width: calc(var(--card-value-tag-font, 11px) * 1.25);
+  height: calc(var(--card-value-tag-font, 11px) * 1.25);
 }
 
 .gallery-card-detail-btn:hover,

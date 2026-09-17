@@ -6,11 +6,33 @@ from typing import Dict, List, Optional, Tuple
 
 def _write_json_atomic(file_path: Path, data: dict) -> None:
     """Write JSON through a sibling temporary file to avoid partial migration output."""
+    import os
+
     file_path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = file_path.with_name(f".{file_path.name}.tmp")
     with open(temp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except Exception:
+            pass
     temp_path.replace(file_path)
+    try:
+        dir_fd = os.open(str(file_path.parent), os.O_DIRECTORY)  # type: ignore[attr-defined]
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+    except Exception:
+        try:
+            dir_fd = os.open(str(file_path.parent), os.O_RDONLY)
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
+        except Exception:
+            pass
 
 
 def migrate_combinations_to_prompts(storage_dir: Path) -> dict:
