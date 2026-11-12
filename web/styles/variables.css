@@ -52,7 +52,8 @@
   --g-bg-elevated: #2a2a2a;
   --g-bg-hover: #3a3a3a;
   --g-bg-input: #1a1a1a;
-  --g-bg-overlay: rgba(0, 0, 0, 0.7);
+  /* 遮罩底色：不再叠加 backdrop-filter（全屏 GPU 模糊会拖垮合成线程），改由该透明度提供压暗效果 */
+  --g-bg-overlay: rgba(0, 0, 0, 0.8);
   --g-bg-gradient: #1e1e1e;
 
   /* 边框色 */
@@ -169,7 +170,8 @@
   --g-bg-elevated: #fff;
   --g-bg-hover: #ffeef2;
   --g-bg-input: #fff5f8;
-  --g-bg-overlay: rgba(0, 0, 0, 0.7);
+  /* 遮罩底色：不再叠加 backdrop-filter（全屏 GPU 模糊会拖垮合成线程），改由该透明度提供压暗效果 */
+  --g-bg-overlay: rgba(0, 0, 0, 0.8);
   --g-bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
 
   /* 边框色 */

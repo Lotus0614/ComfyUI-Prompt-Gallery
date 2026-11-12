@@ -188,12 +188,12 @@
   z-index: 2;
 }
 
+/* 文字压底：用略深的半透明纯色代替 backdrop-filter。
+   每个标签若都带模糊，一屏几十张卡片就是上百个模糊区，合成负担随卡片数线性上升。 */
 .gallery-card-name-tag,
 .gallery-card-value-tag,
 .gallery-card-count-tag {
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.62);
   color: #fff;
   border-radius: 6px;
   padding: 3px 8px;

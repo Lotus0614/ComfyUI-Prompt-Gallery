@@ -12,7 +12,9 @@
     z-index: var(--g-z-modal, 10000);
     opacity: 0;
     transition: opacity 0.3s;
-    backdrop-filter: blur(4px);
+    /* 不要在这里加 backdrop-filter：遮罩铺满整个视口（约 200 万设备像素），
+       每一帧都要让合成线程重新模糊一遍底下的 ComfyUI 画布，实测会让 VizCompositorThread
+       长时间满载并大量掉帧。压暗效果由 --g-bg-overlay 的透明度提供。 */
     pointer-events: none;
 }
 
