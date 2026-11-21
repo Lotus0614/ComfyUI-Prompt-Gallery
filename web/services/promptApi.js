@@ -86,6 +86,26 @@ export async function deleteImage(imagePath) {
 }
 
 /**
+ * 获取所有已收藏的图片路径
+ */
+export async function fetchImageFavorites() {
+  return await requestJson('/prompt_gallery/image_favorites', {}, '获取图片收藏失败');
+}
+
+/**
+ * 切换图片收藏状态
+ * @param {string} imagePath - 图片路径
+ * @returns {Promise<{success: boolean, favorite: boolean}>}
+ */
+export async function toggleImageFavorite(imagePath) {
+  return await requestJson('/prompt_gallery/image_favorites/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imagePath }),
+  }, '收藏操作失败');
+}
+
+/**
  * 删除分类（级联删除子分类和 Prompt）
  */
 export async function deleteCategory(categoryId) {

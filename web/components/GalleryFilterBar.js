@@ -176,6 +176,16 @@ export function GalleryFilterBar() {
           },
           '展示画廊外图片',
         ),
+        // 历史视图：只看收藏
+        isHistory && h(
+          'button',
+          {
+            class: `gallery-filter-btn ${ctx.showImageFavoritesOnly ? 'active' : ''}`,
+            onClick: () => ctx.setShowImageFavoritesOnly((prev) => !prev),
+            title: '只显示已收藏的图片',
+          },
+          '只看收藏',
+        ),
         // 历史视图：筛查按钮 + 悬浮面板
         isHistory && h('div', {
           class: 'custom-filter-trigger',

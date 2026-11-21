@@ -7,13 +7,15 @@
  */
 import { h } from '../lib/preact.mjs';
 import { useState, useEffect, useMemo, useRef, useCallback } from '../lib/hooks.mjs';
+import { Icon } from '../lib/icons.mjs';
 import { LazyList } from './LazyList.js';
 import { buildImageUrl, fetchGroupedImages } from '../utils.js';
 import { computeSizeVars } from './SizePresets.js';
 import { showToast } from './Toast.js';
+import { fetchImageFavorites, toggleImageFavorite } from '../services/promptApi.js';
 
 // 自适应模式下的图片项组件（检测实际宽高比）
-function AdaptiveImageItem({ img, className, onClick, onContextMenu }) {
+function AdaptiveImageItem({ img, className, onClick, onContextMenu, favoriteButton }) {
   const [ratio, setRatio] = useState(1);
   const imgRef = useRef(null);
   const handleLoad = useCallback(() => {
@@ -36,6 +38,7 @@ function AdaptiveImageItem({ img, className, onClick, onContextMenu }) {
       decoding: 'async',
       onLoad: handleLoad,
     }),
+    favoriteButton,
   );
 }
 
@@ -128,6 +131,9 @@ function GroupSidebar({ groupList, groupCountMap, currentGroupIndex, onJumpToGro
  * @param {Object[]} [props.imageFields] - 图片字段列表
  * @param {string} [props.groupByField] - 当前分组字段 ID
  * @param {Function} [props.onGroupByChange] - 分组字段变更回调
+ * @param {boolean} [props.enableFavorites] - 是否显示收藏星标（历史视图开启）
+ * @param {boolean} [props.favoritesOnly] - 是否只展示已收藏图片
+ * @param {Function} [props.onVisibleCountChange] - (count) => void 当前实际展示图片数回调
  */
 export function ImageGroupView({
   promptFilter,
@@ -151,12 +157,16 @@ export function ImageGroupView({
   imageFields = [],
   groupByField = 'builtin_date',
   onGroupByChange,
+  enableFavorites = false,
+  favoritesOnly = false,
+  onVisibleCountChange = null,
 }) {
   const [groupData, setGroupData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [loadingMore, setLoadingMore] = useState(null); // 'up' | 'down' | null
+  const [imageFavorites, setImageFavorites] = useState(() => new Set());
 
   const scrollContainerRef = useRef(null);
   const debounceTimerRef = useRef(null);
@@ -196,6 +206,37 @@ export function ImageGroupView({
   }, [sidebarWidth]);
 
   const gridStyle = useMemo(() => computeSizeVars(cardSize), [cardSize]);
+
+  // ============ 图片收藏 ============
+  useEffect(() => {
+    if (!enableFavorites) return undefined;
+    let cancelled = false;
+    fetchImageFavorites()
+      .then((result) => {
+        if (cancelled || !result.success) return;
+        setImageFavorites(new Set(result.favorites || []));
+      })
+      .catch((err) => {
+        console.error('Failed to load image favorites:', err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [enableFavorites]);
+
+  const handleToggleFavorite = useCallback(async (imagePath) => {
+    try {
+      const result = await toggleImageFavorite(imagePath);
+      setImageFavorites((prev) => {
+        const next = new Set(prev);
+        if (result.favorite) next.add(imagePath);
+        else next.delete(imagePath);
+        return next;
+      });
+    } catch (err) {
+      showToast('收藏失败: ' + err.message, 'error');
+    }
+  }, []);
 
   // ============ 数据加载 ============
   const loadGroupedData = useCallback(
@@ -249,22 +290,56 @@ export function ImageGroupView({
 
   // ============ 可见分组 ============
   const groups = groupData?.groups || [];
-  const groupList = groupData?.dateList || [];
 
-  // 过滤乐观删除的图片：不重载数据、保持滚动位置，仅在前端渲染层排除
-  const filteredGroups = useMemo(() => {
-    if (!removedPaths || removedPaths.size === 0) return groups;
-    return groups.map((g) => {
-      const images = (g.images || []).filter((i) => !removedPaths.has(i.path));
-      if (images.length === (g.images || []).length) return g;
-      return { ...g, images, count: images.length };
-    });
-  }, [groups, removedPaths]);
+  // 过滤乐观删除的图片；开启只看收藏时同时过滤非收藏图片并隐藏空分组。
+  // 左侧分组列表与计数都基于过滤后的结果。
+  const displayGroups = useMemo(() => {
+    const hasRemoved = removedPaths && removedPaths.size > 0;
+    const onlyFavorites = enableFavorites && favoritesOnly;
+    if (!hasRemoved && !onlyFavorites) return groups;
+    const result = [];
+    for (const g of groups) {
+      const baseImages = g.images || [];
+      const images = baseImages.filter(
+        (i) => (!hasRemoved || !removedPaths.has(i.path)) && (!onlyFavorites || imageFavorites.has(i.path)),
+      );
+      if (onlyFavorites && images.length === 0) continue;
+      result.push(images.length === baseImages.length ? g : { ...g, images, count: images.length });
+    }
+    return result;
+  }, [groups, removedPaths, enableFavorites, favoritesOnly, imageFavorites]);
+
+  const groupList = useMemo(() => displayGroups.map((g) => g.date), [displayGroups]);
 
   const visibleGroups = useMemo(() => {
     const { start, end } = visibleRange;
-    return filteredGroups.slice(start, end + 1);
-  }, [filteredGroups, visibleRange]);
+    return displayGroups.slice(start, end + 1);
+  }, [displayGroups, visibleRange]);
+
+  // 切换只看收藏后分组数量会变化，回到顶部避免索引错位
+  useEffect(() => {
+    setVisibleRange({ start: 0, end: 0 });
+    setCurrentGroupIndex(0);
+  }, [favoritesOnly]);
+
+  // 分组因收藏/删除而减少时，把可视范围收敛到有效区间，避免内容区空白
+  useEffect(() => {
+    setVisibleRange((prev) => {
+      const maxIndex = Math.max(0, displayGroups.length - 1);
+      if (prev.start <= maxIndex && prev.end <= maxIndex) return prev;
+      return { start: Math.min(prev.start, maxIndex), end: maxIndex };
+    });
+  }, [displayGroups.length]);
+
+  const visibleImageCount = useMemo(
+    () => displayGroups.reduce((sum, g) => sum + (g.images?.length || 0), 0),
+    [displayGroups],
+  );
+
+  // 顶部计数跟随实际展示的图片数（收藏过滤、乐观删除后保持准确）
+  useEffect(() => {
+    if (onVisibleCountChange) onVisibleCountChange(visibleImageCount);
+  }, [visibleImageCount, onVisibleCountChange]);
 
   // 视口内全部图片（打平）+ 每组起始偏移，供 Lightbox 索引用；提到 useMemo 避免逐项重算
   const allVisibleImages = useMemo(
@@ -279,14 +354,14 @@ export function ImageGroupView({
 
   const groupCountMap = useMemo(() => {
     const map = {};
-    for (const g of filteredGroups) map[g.date] = g.count;
+    for (const g of displayGroups) map[g.date] = g.count;
     return map;
-  }, [filteredGroups]);
+  }, [displayGroups]);
 
   // ============ 滚动边缘检测 + debounce ============
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
-    if (!container || groups.length === 0) return;
+    if (!container || displayGroups.length === 0) return;
 
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
@@ -298,12 +373,12 @@ export function ImageGroupView({
         setLoadingMore('up');
         prevScrollHeightRef.current = scrollHeight;
         setVisibleRange((prev) => ({ start: prev.start - 1, end: prev.end }));
-      } else if (scrollHeight - scrollTop - clientHeight <= threshold && visibleRange.end < groups.length - 1) {
+      } else if (scrollHeight - scrollTop - clientHeight <= threshold && visibleRange.end < displayGroups.length - 1) {
         setLoadingMore('down');
         setVisibleRange((prev) => ({ start: prev.start, end: prev.end + 1 }));
       }
     }, 400);
-  }, [groups.length, visibleRange]);
+  }, [displayGroups.length, visibleRange]);
 
   useEffect(() => {
     if (prevScrollHeightRef.current > 0 && scrollContainerRef.current) {
@@ -320,19 +395,19 @@ export function ImageGroupView({
 
   // 内容高度不足时自动加载更多组
   useEffect(() => {
-    if (loading || groups.length === 0) return;
+    if (loading || displayGroups.length === 0) return;
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const checkAndLoad = () => {
       const { scrollHeight, clientHeight } = container;
-      if (scrollHeight <= clientHeight && visibleRange.end < groups.length - 1) {
+      if (scrollHeight <= clientHeight && visibleRange.end < displayGroups.length - 1) {
         setLoadingMore('down');
         setVisibleRange((prev) => ({ start: prev.start, end: prev.end + 1 }));
       }
     };
     requestAnimationFrame(checkAndLoad);
-  }, [visibleRange, groups.length, loading]);
+  }, [visibleRange, displayGroups.length, loading]);
 
   useEffect(() => {
     return () => { if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current); };
@@ -374,6 +449,27 @@ export function ImageGroupView({
         }
       };
 
+      const isFavorite = imageFavorites.has(img.path);
+      const favoriteButton = enableFavorites
+        ? h(
+            'button',
+            {
+              key: 'favorite',
+              class: `image-favorite-btn ${isFavorite ? 'active' : ''}`,
+              type: 'button',
+              title: isFavorite ? '取消收藏' : '收藏',
+              'aria-label': isFavorite ? '取消收藏' : '收藏',
+              'aria-pressed': isFavorite ? 'true' : 'false',
+              onClick: (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleToggleFavorite(img.path);
+              },
+            },
+            h(Icon, { name: 'star', size: 14 }),
+          )
+        : null;
+
       if (cardLayoutMode === 'adaptive') {
         return h(AdaptiveImageItem, {
           key: img.path,
@@ -381,6 +477,7 @@ export function ImageGroupView({
           className: itemClass,
           onClick: handleClick,
           onContextMenu: handleContextMenu,
+          favoriteButton,
         });
       }
 
@@ -392,15 +489,19 @@ export function ImageGroupView({
           onClick: handleClick,
           onContextMenu: handleContextMenu,
         },
-        h('img', {
-          src: buildImageUrl(img.path, img.type),
-          alt: `${lightboxName} - ${imgIndex + 1}`,
-          loading: 'lazy',
-          decoding: 'async',
-        }),
+        [
+          h('img', {
+            key: 'image',
+            src: buildImageUrl(img.path, img.type),
+            alt: `${lightboxName} - ${imgIndex + 1}`,
+            loading: 'lazy',
+            decoding: 'async',
+          }),
+          favoriteButton,
+        ],
       );
     },
-    [allVisibleImages, groupOffsets, selectionMode, selectedItems, onSelectItem, openLightbox, lightboxName, getContextMenuItems, showContextMenu, handleDeleteAndReload, cardLayoutMode],
+    [allVisibleImages, groupOffsets, selectionMode, selectedItems, onSelectItem, openLightbox, lightboxName, getContextMenuItems, showContextMenu, handleDeleteAndReload, cardLayoutMode, enableFavorites, imageFavorites, handleToggleFavorite],
   );
 
   // ============ Loading / Empty ============
@@ -411,8 +512,8 @@ export function ImageGroupView({
     ]);
   }
 
-  if (groups.length === 0 || filteredGroups.every((g) => g.count === 0)) {
-    return h('div', { class: 'image-group-view-empty' }, '暂无图片');
+  if (groups.length === 0 || displayGroups.every((g) => (g.images || []).length === 0)) {
+    return h('div', { class: 'image-group-view-empty' }, favoritesOnly ? '暂无收藏图片' : '暂无图片');
   }
 
   // ============ 渲染 ============
@@ -482,7 +583,7 @@ export function ImageGroupView({
             h('span', {}, '加载更多...'),
           ]),
 
-          visibleRange.end < groups.length - 1 && !loadingMore &&
+          visibleRange.end < displayGroups.length - 1 && !loadingMore &&
             h('div', { class: 'image-group-load-hint' }, '↓ 继续下滑加载更多'),
         ],
       ),

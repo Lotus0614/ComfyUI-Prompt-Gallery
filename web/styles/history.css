@@ -401,6 +401,50 @@
   opacity: 0.6;
 }
 
+/* ============ 历史图片收藏按钮 ============ */
+.image-favorite-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s, background 0.15s, color 0.15s;
+  z-index: 3;
+}
+
+/* 未收藏：悬停图片或键盘聚焦时才显示 */
+.prompt-detail-image-item:hover .image-favorite-btn,
+.image-favorite-btn.active,
+.image-favorite-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 已收藏：常显、实心、警示色 */
+.image-favorite-btn.active {
+  color: var(--g-warning);
+}
+
+.image-favorite-btn.active svg {
+  fill: currentColor;
+}
+
+.image-favorite-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: scale(1.1);
+}
+
 /* ============ 响应式 ============ */
 @media (max-width: 768px) {
   .date-sidebar {

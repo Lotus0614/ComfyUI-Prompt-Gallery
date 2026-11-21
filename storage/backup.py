@@ -20,7 +20,7 @@ class BackupManager:
 
     # 存储文件模式
     BACKUP_PATTERNS = [
-        "prompts.json", "images.json", "categories.json",
+        "prompts.json", "images.json", "categories.json", "image_favorites.json",
         "*.prompts.json", "*.images.json", "*.categories.json",
     ]
 

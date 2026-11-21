@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from aiohttp import web
 import server
-from ..storage import get_storage
+from ..storage import get_storage, get_image_favorite_storage
 from ._utils import is_remote_path, resolve_output_path, is_safe_filename
 from ._delete_utils import delete_image_completely
 
@@ -52,6 +52,33 @@ async def get_image_info(request):
         return web.json_response({"success": True, "info": result})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/prompt_gallery/image_favorites")
+async def get_image_favorites(request):
+    """获取所有已收藏的图片路径。"""
+    try:
+        storage = get_image_favorite_storage()
+        return web.json_response({"success": True, "favorites": sorted(storage.get_all())})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/prompt_gallery/image_favorites/toggle")
+async def toggle_image_favorite(request):
+    """切换单张图片的收藏状态。"""
+    try:
+        data = await request.json()
+        image_path = (data.get("imagePath") or "").strip()
+        if not image_path:
+            return web.json_response({"error": "缺少imagePath参数"}, status=400)
+
+        storage = get_image_favorite_storage()
+        favorite = storage.toggle(image_path)
+        return web.json_response({"success": True, "favorite": favorite})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
 
 @server.PromptServer.instance.routes.post("/prompt_gallery/save")
 async def save_to_gallery(request):
@@ -190,6 +217,10 @@ async def delete_image(request):
 
         _, mapping_storage, _ = get_storage()
         result = delete_image_completely(image_path, mapping_storage)
+        try:
+            get_image_favorite_storage().remove_many([image_path])
+        except Exception as fav_err:
+            print(f"[ImageFavorite] 清理收藏失败: {fav_err}")
         return web.json_response({
             "success": True,
             "message": "图片已删除",

@@ -3,7 +3,7 @@ Batch 操作端点
 """
 from aiohttp import web
 import server
-from ..storage import get_storage
+from ..storage import get_storage, get_image_favorite_storage
 from ._delete_utils import delete_category_cascade, delete_images_completely_batch
 
 
@@ -90,6 +90,10 @@ async def batch_delete(request):
                     image_paths, mapping_storage
                 )
                 result["deleted_files"].extend(img_result["deleted_files"])
+                try:
+                    get_image_favorite_storage().remove_many(image_paths)
+                except Exception as fav_err:
+                    print(f"[ImageFavorite] 清理收藏失败: {fav_err}")
             except Exception as e:
                 result["errors"].append(f"删除图片失败: {str(e)}")
 

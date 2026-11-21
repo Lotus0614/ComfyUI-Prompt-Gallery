@@ -52,6 +52,7 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('desc');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showImageFavoritesOnly, setShowImageFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState(Storage.getFavorites());
   const [cardSize, setCardSize] = useState(() => Storage.getCardSize());
   const [cardLayoutMode, setCardLayoutMode] = useState(() => Storage.getCardLayoutMode());
@@ -802,6 +803,8 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
       setSortOrder,
       showFavoritesOnly,
       setShowFavoritesOnly,
+      showImageFavoritesOnly,
+      setShowImageFavoritesOnly,
       favorites,
       handleFavoriteToggle,
       handleTogglePinned,
@@ -962,6 +965,7 @@ export function GalleryProvider({ children, isOpen, onClose, initialNavigation, 
       sortBy,
       sortOrder,
       showFavoritesOnly,
+      showImageFavoritesOnly,
       favorites,
       handleTogglePinned,
       cardSize,

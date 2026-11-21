@@ -8,6 +8,7 @@ from .image_mapping import ImageMappingStorage
 from .category import CategoryStorage
 from .custom_filter import CustomFilterStorage
 from .image_field import ImageFieldStorage
+from .image_favorite import ImageFavoriteStorage
 from .migration import (
     migrate_prompt_data,
     migrate_to_prompt_schema,
@@ -19,6 +20,7 @@ from .migration import (
 _storage_instances = None
 _custom_filter_instance = None
 _image_field_instance = None
+_image_favorite_instance = None
 _storage_init_lock = threading.Lock()
 
 
@@ -50,6 +52,7 @@ def _resolve_storage_dir() -> Path:
         or (new_storage_dir / "image_prompts.json").exists()
         or (new_storage_dir / "images.json").exists()
         or (new_storage_dir / "categories.json").exists()
+        or (new_storage_dir / "image_favorites.json").exists()
         or (new_storage_dir / "combinations.json").exists()
         or (new_storage_dir / "artists.json").exists()
         or (new_storage_dir / "image_artists.json").exists()
@@ -74,6 +77,7 @@ def _resolve_storage_dir() -> Path:
         plugin_dir / "storage_config.json",
         plugin_dir / "custom_filters.json",
         plugin_dir / "image_fields.json",
+        plugin_dir / "image_favorites.json",
     ]
     for pattern in (
         "*.prompts.json",
@@ -225,6 +229,20 @@ def get_image_field_storage() -> ImageFieldStorage:
         return _image_field_instance
 
 
+def get_image_favorite_storage() -> ImageFavoriteStorage:
+    """获取图片收藏存储实例（懒加载单例）"""
+    global _image_favorite_instance
+    if _image_favorite_instance is not None:
+        return _image_favorite_instance
+
+    with _storage_init_lock:
+        if _image_favorite_instance is not None:
+            return _image_favorite_instance
+        storage_dir = _resolve_storage_dir()
+        _image_favorite_instance = ImageFavoriteStorage(storage_dir)
+        return _image_favorite_instance
+
+
 def clear_all_caches():
     """清除所有 Storage 单例的缓存和索引（持各自的锁，避免与并发读写竞争）"""
     if _storage_instances is not None:
@@ -233,7 +251,7 @@ def clear_all_caches():
                 # 各子类的 _invalidate_cache 会同时清空自身索引
                 storage._invalidate_cache()
 
-    for extra in (_custom_filter_instance, _image_field_instance):
+    for extra in (_custom_filter_instance, _image_field_instance, _image_favorite_instance):
         if extra is not None:
             with extra._lock:
                 extra._cache = None
