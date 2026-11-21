@@ -85,6 +85,7 @@ Windows 便携版可使用 ComfyUI 自带的 Python：
 - `images`：必填，待保存的图片
 - `prompt_string`：必填，写入图片索引，并在后台匹配已有 Prompt
 - `prefix`：可选，目录和文件名前缀，默认 `prompt_gallery/AG`
+- `自动补充prompt封面`：可选，默认开启。关闭后保存图片时不再匹配 Prompt，也不会为新图片补充封面
 
 `prefix` 的最后一段是文件名前缀，前面的部分是相对 `output` 的目录；目录和文件名前缀均支持 `strftime` 时间格式。
 
@@ -98,7 +99,7 @@ Windows 便携版可使用 ComfyUI 自带的 Python：
 
 文件名中的时间戳在同一次批量保存中相同，末尾序号从 `0` 开始。
 
-保存完成后，插件会根据 Prompt 的 `value` 和别名在 `prompt_string` 中做字符串包含匹配。匹配到的 Prompt 如果没有封面，会使用本批次第一张图片作为封面；未匹配到 Prompt 不影响图片保存。
+保存完成后，如果 `自动补充prompt封面` 处于开启状态，插件会根据 Prompt 的 `value` 和别名在 `prompt_string` 中做字符串包含匹配。匹配到的 Prompt 如果没有封面，会使用本批次第一张图片作为封面；未匹配到 Prompt 不影响图片保存。关闭该开关后只写入图片索引，不做匹配。
 
 ### 快速保存Prompt
 

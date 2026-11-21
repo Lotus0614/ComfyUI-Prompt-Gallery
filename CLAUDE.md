@@ -26,7 +26,7 @@ prompt.value.lower() in image.promptString.lower()
 
 - `PromptGallery`: legacy utility node; the gallery is normally opened with the floating button.
 - `PromptSelector`: selects direct Prompt entries or categories, applies partition formatting, random/cycle modes, and weights.
-- `SaveToGallery`: writes PNG files synchronously, then registers image mappings and fills empty Prompt covers in a daemon thread.
+- `SaveToGallery`: writes PNG files synchronously, then registers image mappings and fills empty Prompt covers in a daemon thread; the optional `auto_fill_cover` widget (default on) turns Prompt matching off while keeping the mapping write.
 - `SavePrompt`: creates Prompt entries from workflow text.
 - `ReadPromptFromCategory`: reads Prompt values from a category.
 

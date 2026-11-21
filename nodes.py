@@ -383,13 +383,18 @@ class SaveToGallery:
         return result
 
     @classmethod
-    def _complete_save_async(cls, pending_mappings, prompt_string, first_saved_image_path):
+    def _complete_save_async(cls, pending_mappings, prompt_string, first_saved_image_path, auto_fill_cover=True):
         """后台写入图片映射，并完成 Prompt 匹配和缺失封面补齐。"""
         try:
             prompt_storage, mapping_storage, _ = get_storage()
 
             if pending_mappings:
                 mapping_storage.add_mappings_batch(pending_mappings)
+
+            # 开关关闭时只写映射，不做 Prompt 匹配，避免大数据量下的额外开销
+            if not auto_fill_cover:
+                print(f"[SaveToGallery] 后台保存完成: mappings={len(pending_mappings)}, 自动补封面已关闭")
+                return
 
             if not first_saved_image_path:
                 return
@@ -415,11 +420,11 @@ class SaveToGallery:
             traceback.print_exc()
 
     @classmethod
-    def _schedule_save_completion(cls, pending_mappings, prompt_string, first_saved_image_path):
+    def _schedule_save_completion(cls, pending_mappings, prompt_string, first_saved_image_path, auto_fill_cover=True):
         import threading
         thread = threading.Thread(
             target=cls._complete_save_async,
-            args=(pending_mappings, prompt_string, first_saved_image_path),
+            args=(pending_mappings, prompt_string, first_saved_image_path, auto_fill_cover),
             daemon=True,
         )
         thread.start()
@@ -433,6 +438,11 @@ class SaveToGallery:
             },
             "optional": {
                 "prefix": ("STRING", {"default": "prompt_gallery/AG"}),
+                "auto_fill_cover": ("BOOLEAN", {
+                    "default": True,
+                    "display_name": "自动补充prompt封面",
+                    "tooltip": "开启后，每次生成如果命中的prompt没有封面会自动为其补充封面，如果数据量较大可能会比较慢",
+                }),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -440,11 +450,12 @@ class SaveToGallery:
             }
         }
 
-    def save_image(self, images, prompt_string="", prefix="prompt_gallery/AG", prompt=None, extra_pnginfo=None):
+    def save_image(self, images, prompt_string="", prefix="prompt_gallery/AG", auto_fill_cover=True, prompt=None, extra_pnginfo=None):
         """
         保存图片；图片索引写入、Prompt 匹配和补封面异步执行，不阻塞返回。
         :param prefix: 保存路径前缀，支持 strftime 时间格式化（如 "gallery/%Y/%m/AG"）
         :param prompt_string: 提示词字符串，必填并写入图片索引
+        :param auto_fill_cover: 是否在后台匹配 Prompt 并为其补充缺失封面
         """
         import folder_paths
         import numpy as np
@@ -549,7 +560,9 @@ class SaveToGallery:
                 traceback.print_exc()
 
         if pending_mappings:
-            self._schedule_save_completion(pending_mappings, prompt_string, first_saved_image_path)
+            self._schedule_save_completion(
+                pending_mappings, prompt_string, first_saved_image_path, bool(auto_fill_cover)
+            )
 
         print(f"[SaveToGallery] 总共保存了 {saved_count} 张图片，映射写入已转后台")
         return { "ui": { "images": results } }

@@ -195,6 +195,7 @@ Prompt 选择节点
 | `images` | IMAGE | 是 | 一张或多张图片 |
 | `prompt_string` | STRING | 是 | 最终提示词文本，也是图片关联的唯一来源 |
 | `prefix` | STRING | 否 | 默认 `prompt_gallery/AG`，支持 `strftime` |
+| `auto_fill_cover` | BOOLEAN | 否 | 显示名「自动补充prompt封面」，默认开启 |
 | `prompt` | PROMPT | 隐藏 | ComfyUI API prompt |
 | `extra_pnginfo` | EXTRA_PNGINFO | 隐藏 | workflow 等附加信息 |
 
@@ -231,9 +232,12 @@ PNG 中写入：
 后台线程执行：
 
 1. 使用 `add_mappings_batch()` 一次加锁、一次写入全部图片索引。
-2. 从全部 Prompt 的 `value` 和逗号分隔别名构建匹配表。
-3. 在 `prompt_string` 中进行不区分大小写的字符串包含匹配。
-4. 使用本批次第一张图片，为匹配到且没有封面的 Prompt 批量设置 `coverImageId`。
+2. 如果 `auto_fill_cover` 关闭，后台阶段到此结束，不做任何 Prompt 匹配。
+3. 从全部 Prompt 的 `value` 和逗号分隔别名构建匹配表。
+4. 在 `prompt_string` 中进行不区分大小写的字符串包含匹配。
+5. 使用本批次第一张图片，为匹配到且没有封面的 Prompt 批量设置 `coverImageId`。
+
+`auto_fill_cover`（显示名「自动补充prompt封面」）默认开启。关闭后图片索引仍会异步写入，但不再匹配 Prompt，因此大数据量下的保存不会有额外匹配开销。
 
 Prompt 匹配表带有模块级缓存。只有 Prompt `value`、别名或分类集合变化时才重建。
 
